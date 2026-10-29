@@ -1,0 +1,515 @@
+<!-- Main container for the landlord dashboard -->
+<div class="min-h-screen bg-[#09090b] text-white">
+
+  <!-- Navigation bar -->
+  <header class="sticky top-0 z-40 border-b border-white/10 bg-[#09090b]/95 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+
+      <!-- RentHub logo and branding -->
+      <a
+        routerLink="/"
+        class="flex shrink-0 items-center gap-3"
+        aria-label="RentHub Home"
+      >
+        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#ff6b00] text-xl font-black text-white">
+          R
+        </span>
+
+        <span class="text-2xl font-black tracking-tight text-white">
+          Rent<span class="text-[#ff6b00]">Hub</span><span class="text-[#ff6b00]">.</span>
+        </span>
+      </a>
+
+      <!-- Navigation links for landlord pages -->
+      <nav class="hidden items-center gap-6 md:flex">
+        <a routerLink="/landlord-dash" class="text-sm font-semibold text-orange-400">Dashboard</a>
+        <a routerLink="/my-listings" class="text-sm text-zinc-400 hover:text-white">My Properties</a>
+        <a routerLink="/handle-property-queries" class="text-sm text-zinc-400 hover:text-white">Tenant Queries</a>
+        <a routerLink="/profile" class="text-sm text-zinc-400 hover:text-white">Profile</a>
+      </nav>
+
+      <!-- Log out the current user -->
+      <button
+        type="button"
+        (click)="logout()"
+        class="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-zinc-300 transition hover:border-red-500/40 hover:text-red-400"
+      >
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <!-- Main dashboard content -->
+  <main class="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 lg:px-8">
+
+    <!-- Welcome section with background image -->
+    <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-zinc-900">
+      <img
+        src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2000&q=85"
+        alt="Modern luxury property"
+        class="absolute inset-0 -z-20 h-full w-full object-cover"
+      />
+
+      <!-- Dark overlay to make the text easier to read -->
+      <div class="absolute inset-0 -z-10 bg-gradient-to-r from-black via-black/85 to-black/25"></div>
+
+      <div class="flex min-h-[310px] flex-col justify-center gap-6 p-7 sm:p-10 lg:flex-row lg:items-center lg:justify-between">
+        <div class="max-w-2xl">
+          <p class="mb-3 text-xs font-bold uppercase tracking-[0.25em] text-orange-400">
+            Landlord workspace
+          </p>
+
+          <!-- Display the landlord's name -->
+          <h1 class="text-3xl font-black leading-tight sm:text-5xl">
+            Welcome back,
+            <span class="text-orange-400">{{ user?.fullName || 'Landlord' }}</span>
+          </h1>
+
+          <p class="mt-4 max-w-xl text-sm leading-7 text-zinc-300 sm:text-base">
+            Your properties, your tenants, your business. Manage everything from one place.
+          </p>
+        </div>
+
+        <!-- Navigate to the property creation page -->
+        <button
+          type="button"
+          (click)="addProperty()"
+          class="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-xl bg-orange-500 px-6 py-3 font-bold text-black transition hover:bg-orange-400 lg:self-center"
+        >
+          <span class="text-xl">+</span> Add property
+        </button>
+      </div>
+    </section>
+
+    <!-- Dashboard statistics -->
+    <section>
+      <div class="mb-5">
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-orange-400">Overview</p>
+        <h2 class="mt-2 text-2xl font-bold">Your performance</h2>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+
+        <!-- Total properties managed by the landlord -->
+        <article class="rounded-2xl border border-white/10 bg-zinc-900/80 p-6 transition hover:border-orange-500/30">
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-zinc-400">Your properties</p>
+            <span class="rounded-xl bg-orange-500/10 px-3 py-2 text-xl text-orange-400">⌂</span>
+          </div>
+
+          <p class="mt-5 text-4xl font-black">{{ totalProperties }}</p>
+          <p class="mt-2 text-xs text-zinc-500">Properties you manage</p>
+        </article>
+
+        <!-- Number of queries awaiting a response -->
+        <article class="rounded-2xl border border-white/10 bg-zinc-900/80 p-6 transition hover:border-amber-500/30">
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-zinc-400">Open queries</p>
+            <span class="rounded-xl bg-amber-500/10 px-3 py-2 text-xl text-amber-400">!</span>
+          </div>
+
+          <p class="mt-5 text-4xl font-black">{{ openQueries }}</p>
+          <p class="mt-2 text-xs text-zinc-500">Awaiting your response</p>
+        </article>
+
+        <!-- Number of queries already answered -->
+        <article class="rounded-2xl border border-white/10 bg-zinc-900/80 p-6 transition hover:border-emerald-500/30">
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-zinc-400">Answered queries</p>
+            <span class="rounded-xl bg-emerald-500/10 px-3 py-2 text-xl text-emerald-400">✓</span>
+          </div>
+
+          <p class="mt-5 text-4xl font-black">{{ answeredQueries }}</p>
+          <p class="mt-2 text-xs text-zinc-500">Queries you've answered</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Quick actions for common landlord tasks -->
+    <section>
+      <div class="mb-5">
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-orange-400">Shortcuts</p>
+        <h2 class="mt-2 text-2xl font-bold">Manage your business</h2>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-3">
+
+        <!-- Open the landlord's property listings -->
+        <button
+          type="button"
+          (click)="manageListings()"
+          class="group rounded-2xl border border-white/10 bg-zinc-900 p-6 text-left transition hover:-translate-y-1 hover:border-orange-500/50"
+        >
+          <span class="text-2xl">⌂</span>
+          <h3 class="mt-4 font-bold group-hover:text-orange-400">My properties</h3>
+          <p class="mt-2 text-sm leading-6 text-zinc-400">View and manage your rental listings.</p>
+          <span class="mt-5 inline-block text-sm font-semibold text-orange-400">Manage listings →</span>
+        </button>
+
+        <!-- Open the form to create a property listing -->
+        <button
+          type="button"
+          (click)="addProperty()"
+          class="group rounded-2xl border border-white/10 bg-zinc-900 p-6 text-left transition hover:-translate-y-1 hover:border-orange-500/50"
+        >
+          <span class="text-2xl">＋</span>
+          <h3 class="mt-4 font-bold group-hover:text-orange-400">Create listing</h3>
+          <p class="mt-2 text-sm leading-6 text-zinc-400">Add photos, pricing, amenities and rental terms.</p>
+          <span class="mt-5 inline-block text-sm font-semibold text-orange-400">Add property →</span>
+        </button>
+
+        <!-- Open tenant enquiries and replies -->
+        <button
+          type="button"
+          (click)="handleQueries()"
+          class="group rounded-2xl border border-white/10 bg-zinc-900 p-6 text-left transition hover:-translate-y-1 hover:border-orange-500/50"
+        >
+          <span class="text-2xl">✉</span>
+          <h3 class="mt-4 font-bold group-hover:text-orange-400">Tenant queries</h3>
+          <p class="mt-2 text-sm leading-6 text-zinc-400">Read enquiries and respond to potential tenants.</p>
+          <span class="mt-5 inline-block text-sm font-semibold text-orange-400">Handle queries →</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Property portfolio with search, filters, sorting, and pagination -->
+    <section>
+      <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-orange-400">Property portfolio</p>
+          <h2 class="mt-2 text-2xl font-bold">Your properties</h2>
+          <p class="mt-2 text-sm text-zinc-400">Search, sort and manage your listings.</p>
+        </div>
+
+        <!-- Navigate to the complete property management page -->
+        <button
+          type="button"
+          (click)="manageListings()"
+          class="text-sm font-semibold text-orange-400 hover:text-orange-300"
+        >
+          Manage all listings →
+        </button>
+      </div>
+
+      <!-- Property search and filter controls -->
+      <div class="mb-6 grid gap-3 rounded-2xl border border-white/10 bg-zinc-900/80 p-4 sm:grid-cols-2 lg:grid-cols-6">
+
+        <!-- Search properties by text -->
+        <input
+          type="search"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onFilterChange()"
+          placeholder="Search properties..."
+          class="min-w-0 rounded-xl border border-white/10 bg-black/30 px-3 py-3 text-sm outline-none placeholder:text-zinc-500 focus:border-orange-500 lg:col-span-2"
+        />
+
+        <!-- Filter properties by city -->
+        <select
+          [(ngModel)]="selectedCity"
+          (ngModelChange)="onFilterChange()"
+          class="min-w-0 rounded-xl border border-white/10 bg-zinc-950 px-3 py-3 text-sm outline-none focus:border-orange-500"
+        >
+          <option value="">All cities</option>
+
+          @for (city of cities; track city) {
+            <option [value]="city">{{ city }}</option>
+          }
+        </select>
+
+        <!-- Set the minimum monthly rent -->
+        <input
+          type="number"
+          min="0"
+          [(ngModel)]="minRent"
+          (ngModelChange)="onFilterChange()"
+          placeholder="Min rent ₹"
+          class="min-w-0 rounded-xl border border-white/10 bg-black/30 px-3 py-3 text-sm outline-none placeholder:text-zinc-500 focus:border-orange-500"
+        />
+
+        <!-- Set the maximum monthly rent -->
+        <input
+          type="number"
+          min="0"
+          [(ngModel)]="maxRent"
+          (ngModelChange)="onFilterChange()"
+          placeholder="Max rent ₹"
+          class="min-w-0 rounded-xl border border-white/10 bg-black/30 px-3 py-3 text-sm outline-none placeholder:text-zinc-500 focus:border-orange-500"
+        />
+
+        <!-- Sort properties by date, rent, or title -->
+        <select
+          [(ngModel)]="sortBy"
+          (ngModelChange)="onFilterChange()"
+          class="min-w-0 rounded-xl border border-white/10 bg-zinc-950 px-3 py-3 text-sm outline-none focus:border-orange-500"
+        >
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="rent-low">Rent: low to high</option>
+          <option value="rent-high">Rent: high to low</option>
+          <option value="title">Title: A–Z</option>
+        </select>
+
+        <!-- Reset all applied filters -->
+        <button
+          type="button"
+          (click)="clearFilters()"
+          class="rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-zinc-300 transition hover:border-orange-500/50 hover:text-orange-400 sm:col-span-2 lg:col-span-6 lg:justify-self-end"
+        >
+          Clear filters
+        </button>
+      </div>
+
+      <!-- Display properties when matching results are available -->
+      @if (filteredProperties.length > 0) {
+        <!-- Show the result range and page-size selector -->
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm text-zinc-400">
+          <p>
+            Showing <span class="font-semibold text-white">{{ firstResult }}–{{ lastResult }}</span>
+            of <span class="font-semibold text-white">{{ filteredProperties.length }}</span> properties
+          </p>
+
+          <!-- Choose how many properties appear on each page -->
+          <label class="flex items-center gap-2">
+            Per page
+            <select
+              [ngModel]="pageSize"
+              (ngModelChange)="onPageSizeChange($event)"
+              class="rounded-lg border border-white/10 bg-zinc-900 px-3 py-2 text-white outline-none focus:border-orange-500"
+            >
+              <option [ngValue]="4">4</option>
+              <option [ngValue]="8">8</option>
+              <option [ngValue]="12">12</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- Display the properties for the current page -->
+        <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          @for (property of paginatedProperties; track property.id) {
+            <!-- Individual property card -->
+            <article class="group overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 transition hover:-translate-y-1 hover:border-orange-500/40">
+
+              <!-- Property image and city label -->
+              <div class="relative overflow-hidden">
+                <img
+                  [src]="getPropertyImage(property)"
+                  [alt]="property.title"
+                  (error)="$any($event.target).src = fallbackImage"
+                  loading="lazy"
+                  class="h-48 w-full object-cover transition duration-500 group-hover:scale-105"
+                />
+
+                <span class="absolute left-3 top-3 rounded-full border border-white/10 bg-black/70 px-3 py-1 text-xs font-semibold text-orange-300 backdrop-blur">
+                  {{ property.city }}
+                </span>
+              </div>
+
+              <!-- Property details -->
+              <div class="space-y-3 p-4">
+                <h3 class="line-clamp-1 font-bold">{{ property.title }}</h3>
+                <p class="line-clamp-1 text-sm text-zinc-400">{{ property.location }}</p>
+
+                <!-- Display property size and room information -->
+                <div class="flex flex-wrap gap-3 text-xs text-zinc-400">
+                  <span>{{ property.bedrooms }} beds</span>
+                  <span>{{ property.bathrooms }} baths</span>
+                  <span>{{ property.areaSqFt }} sq ft</span>
+                </div>
+
+                <!-- Display the monthly rent in Indian currency -->
+                <div class="border-t border-white/10 pt-3">
+                  <p class="text-lg font-black text-orange-400">
+                    {{ property.monthlyRent | currency:'INR':'symbol':'1.0-0' }}
+                    <span class="text-xs font-normal text-zinc-500">/ month</span>
+                  </p>
+                </div>
+
+                <!-- Actions for viewing and editing a property -->
+                <div class="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    (click)="viewProperty(property)"
+                    class="flex-1 rounded-lg border border-white/10 px-3 py-2 text-sm transition hover:border-orange-500/50"
+                  >
+                    View
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="editProperty(property)"
+                    class="flex-1 rounded-lg bg-orange-500 px-3 py-2 text-sm font-bold text-black transition hover:bg-orange-400"
+                  >
+                    Edit
+                  </button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+
+        <!-- Pagination controls -->
+        @if (totalPages > 1) {
+          <nav class="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Property pagination">
+
+            <!-- Navigate to the previous page -->
+            <button
+              type="button"
+              (click)="previousPage()"
+              [disabled]="currentPage === 1"
+              class="rounded-lg border border-white/10 px-4 py-2 text-sm transition hover:border-orange-500/50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Previous
+            </button>
+
+            <!-- Display buttons for each available page -->
+            @for (page of pageNumbers; track page) {
+              <button
+                type="button"
+                (click)="goToPage(page)"
+                [attr.aria-current]="currentPage === page ? 'page' : null"
+                [class.bg-orange-500]="currentPage === page"
+                [class.text-black]="currentPage === page"
+                [class.border-orange-500]="currentPage === page"
+                class="h-10 min-w-10 rounded-lg border border-white/10 px-3 text-sm font-bold transition hover:border-orange-500/50"
+              >
+                {{ page }}
+              </button>
+            }
+
+            <!-- Navigate to the next page -->
+            <button
+              type="button"
+              (click)="nextPage()"
+              [disabled]="currentPage === totalPages"
+              class="rounded-lg border border-white/10 px-4 py-2 text-sm transition hover:border-orange-500/50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next
+            </button>
+          </nav>
+        }
+
+      } @else {
+        <!-- Empty state when no properties match the selected filters -->
+        <div class="rounded-2xl border border-dashed border-white/15 bg-zinc-900/60 px-6 py-12 text-center">
+          <img
+            src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=700&q=80"
+            alt="Modern empty property search"
+            class="mx-auto mb-6 h-36 w-56 rounded-xl object-cover opacity-70"
+          />
+
+          <h3 class="text-lg font-bold">No matching properties</h3>
+          <p class="mt-2 text-sm text-zinc-400">
+            Try changing your filters or add your first property.
+          </p>
+
+          <!-- Allow the landlord to reset filters or add a property -->
+          <div class="mt-5 flex flex-wrap justify-center gap-3">
+            <button
+              type="button"
+              (click)="clearFilters()"
+              class="rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold hover:border-orange-500/50"
+            >
+              Clear filters
+            </button>
+
+            <button
+              type="button"
+              (click)="addProperty()"
+              class="rounded-xl bg-orange-500 px-5 py-3 text-sm font-bold text-black hover:bg-orange-400"
+            >
+              Add property
+            </button>
+          </div>
+        </div>
+      }
+    </section>
+
+    <!-- Recent tenant queries for the landlord's properties -->
+    <section>
+      <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-orange-400">Tenant communication</p>
+          <h2 class="mt-2 text-2xl font-bold">Recent property queries</h2>
+        </div>
+
+        <!-- Navigate to the complete tenant query management page -->
+        <button
+          type="button"
+          (click)="handleQueries()"
+          class="text-sm font-semibold text-orange-400 hover:text-orange-300"
+        >
+          View all queries →
+        </button>
+      </div>
+
+      <!-- Show recent queries if any are available -->
+      @if (recentQueries.length > 0) {
+        <div class="overflow-hidden rounded-2xl border border-white/10 bg-zinc-900">
+          @for (query of recentQueries; track query.id) {
+            <!-- Individual tenant query -->
+            <article class="border-b border-white/10 p-5 last:border-b-0">
+              <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                <div class="min-w-0">
+                  <!-- Display the property and tenant details -->
+                  <h3 class="font-semibold">{{ query.propertyTitle }}</h3>
+                  <p class="mt-1 text-sm text-zinc-400">From {{ query.tenantName }}</p>
+
+                  <!-- Display the tenant's message -->
+                  <p class="mt-3 whitespace-pre-line text-sm leading-6 text-zinc-300">
+                    {{ query.message }}
+                  </p>
+
+                  <!-- Display the landlord's reply if one exists -->
+                  @if (query.reply) {
+                    <p class="mt-3 text-sm text-emerald-300">
+                      Your reply: {{ query.reply }}
+                    </p>
+                  }
+
+                  <!-- Display when the tenant submitted the query -->
+                  <p class="mt-3 text-xs text-zinc-500">
+                    {{ query.createdAt | date:'medium' }}
+                  </p>
+                </div>
+
+                <!-- Show whether the query is open or answered -->
+                <span
+                  class="w-fit shrink-0 rounded-full px-3 py-1 text-xs font-semibold"
+                  [class.bg-amber-500/10]="query.status === 'open'"
+                  [class.text-amber-300]="query.status === 'open'"
+                  [class.bg-emerald-500/10]="query.status === 'answered'"
+                  [class.text-emerald-300]="query.status === 'answered'"
+                >
+                  {{ query.status === 'open' ? 'Awaiting reply' : 'Answered' }}
+                </span>
+              </div>
+            </article>
+          }
+        </div>
+
+      } @else {
+        <!-- Empty state when no tenant queries exist -->
+        <div class="rounded-2xl border border-white/10 bg-zinc-900/60 p-8 text-center">
+          <h3 class="font-bold">No tenant queries yet</h3>
+          <p class="mt-2 text-sm text-zinc-400">
+            New enquiries about your properties will appear here.
+          </p>
+        </div>
+      }
+    </section>
+  </main>
+
+  <!-- Footer with account and dashboard navigation links -->
+  <footer class="mt-12 border-t border-white/10">
+    <div class="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-4 py-6 text-sm text-zinc-500 sm:flex-row sm:px-6 lg:px-8">
+      <p>© {{ user?.fullName || 'RentHub' }} · RentHub Landlord Workspace</p>
+
+      <!-- Footer navigation links -->
+      <div class="flex gap-5">
+        <a routerLink="/profile" class="hover:text-white">Profile</a>
+        <a routerLink="/my-listings" class="hover:text-white">My properties</a>
+        <a routerLink="/handle-property-queries" class="hover:text-white">Tenant queries</a>
+      </div>
+    </div>
+  </footer>
+</div>

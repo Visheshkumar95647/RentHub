@@ -1,0 +1,504 @@
+<main class="min-h-screen overflow-x-hidden bg-[#090909] text-white">
+  <!-- NAVBAR -->
+  <header class="sticky top-0 z-50 border-b border-white/[0.08] bg-[#090909]/90 backdrop-blur-2xl">
+    <nav class="mx-auto flex h-[76px] max-w-[1400px] items-center justify-between gap-4 px-5 lg:px-8">
+      
+<!-- Common RentHub branding -->
+<a
+  routerLink="/"
+  class="flex shrink-0 items-center gap-3"
+  aria-label="RentHub Home"
+>
+  <span
+    class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#ff6b00] text-xl font-black text-white"
+  >
+    R
+  </span>
+
+  <span class="text-2xl font-black tracking-tight text-white">
+    Rent<span class="text-[#ff6b00]">Hub</span><span class="text-[#ff6b00]">.</span>
+  </span>
+</a>
+
+
+      <div class="hidden items-center gap-8 md:flex">
+        <a routerLink="/user-dashboard" class="text-sm font-semibold text-white">Discover</a>
+        @if (isLoggedIn) {
+          <a routerLink="/favourites" class="text-sm text-neutral-400 transition hover:text-white">Saved homes</a>
+          @if (isLandlord) {
+            <a routerLink="/my-listings" class="text-sm text-neutral-400 transition hover:text-white">My listings</a>
+          }
+        }
+        <button type="button" (click)="scrollToProperties()" class="text-sm text-neutral-400 transition hover:text-[#ff8733]">Explore rentals</button>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        @if (isLoggedIn) {
+          <a routerLink="/favourites" aria-label="Favourites"
+            class="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-xl transition hover:border-[#ff7a1a]">
+            ♡
+            @if (favourites.size > 0) {
+              <span class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ff6b00] px-1 text-[10px] font-bold">{{ favourites.size }}</span>
+            }
+          </a>
+          <a routerLink="/profile" aria-label="My profile"
+            class="flex h-10 w-10 items-center justify-center rounded-full border border-[#ff7a1a]/50 bg-[#ff7a1a]/10 text-sm font-bold text-[#ff9b52]">
+            {{ user?.fullName?.charAt(0)?.toUpperCase() }}
+          </a>
+          <button type="button" (click)="logout()"
+            class="hidden rounded-full border border-white/10 px-4 py-2.5 text-xs font-semibold text-neutral-300 transition hover:border-red-400/50 hover:text-red-400 sm:block">Log out</button>
+        } @else {
+          <a routerLink="/login" class="rounded-full border border-white/15 px-4 py-2.5 text-xs font-semibold text-neutral-200 transition hover:border-[#ff8733]">Log in</a>
+          <a routerLink="/register" class="rounded-full bg-[#ff6b00] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#ff8126]">Sign up</a>
+        }
+      </div>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="mx-auto max-w-[1400px] px-4 pt-5 sm:px-6 lg:px-8 lg:pt-8">
+    <div class="relative isolate min-h-[510px] overflow-hidden rounded-[28px] border border-white/10 sm:min-h-[570px] lg:min-h-[590px]">
+      <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2200&q=90"
+        alt="Contemporary home with elegant interiors" fetchpriority="high"
+        class="absolute inset-0 -z-20 h-full w-full object-cover object-center" />
+      <div class="absolute inset-0 -z-10 bg-gradient-to-r from-black/90 via-black/65 to-black/10"></div>
+      <div class="absolute inset-0 -z-10 bg-gradient-to-t from-black/65 via-transparent to-black/10"></div>
+
+      <div class="relative flex min-h-[510px] flex-col justify-center px-6 py-12 sm:min-h-[570px] sm:px-10 lg:min-h-[590px] lg:px-16">
+        <div class="max-w-3xl">
+          <div class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 px-4 py-2 backdrop-blur-md">
+            <span class="h-2 w-2 rounded-full bg-[#ff7a1a]"></span>
+            <span class="text-[10px] font-bold uppercase tracking-[0.22em] text-neutral-200 sm:text-xs">A better way to find home</span>
+          </div>
+
+          <h1 class="mt-7 max-w-3xl text-4xl font-black leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">
+            Find a place<br />to call <span class="text-[#ff8733]">your own.</span>
+          </h1>
+
+          <p class="mt-5 max-w-xl text-sm leading-7 text-neutral-200 sm:text-base sm:leading-8">
+            @if (isLoggedIn) {
+              Hey, {{ user?.fullName }}. Discover thoughtfully selected spaces, compare rentals and find a home that feels right.
+            } @else {
+              Discover thoughtfully selected spaces, compare rentals and find a home that feels right. Start exploring without creating an account.
+            }
+          </p>
+
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <button type="button" (click)="scrollToProperties()"
+              class="inline-flex items-center gap-3 rounded-full bg-[#ff6b00] px-6 py-4 text-sm font-bold shadow-lg shadow-orange-950/30 transition hover:-translate-y-0.5 hover:bg-[#ff8126]">
+              Explore properties <span class="text-lg">↗</span>
+            </button>
+            @if (isLoggedIn) {
+              <a routerLink="/favourites"
+                class="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/25 px-6 py-4 text-sm font-semibold backdrop-blur-md transition hover:bg-white/10">
+                <span class="text-lg">♡</span> Saved homes
+              </a>
+            } @else {
+              <a routerLink="/register"
+                class="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/25 px-6 py-4 text-sm font-semibold backdrop-blur-md transition hover:bg-white/10">
+                Get started <span>↗</span>
+              </a>
+            }
+          </div>
+        </div>
+
+        <div class="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-white/20 pt-5 sm:absolute sm:bottom-8 sm:left-10 sm:right-10 sm:mt-0 lg:left-16 lg:right-16">
+          <div class="flex items-center gap-2 text-xs text-neutral-200"><span class="text-[#ff8733]">✦</span> Discover places that fit your life</div>
+          <div class="flex items-center gap-2 text-xs text-neutral-200"><span class="text-[#ff8733]">✦</span> Compare rent with ease</div>
+          <div class="flex items-center gap-2 text-xs text-neutral-200"><span class="text-[#ff8733]">✦</span> Save your favourite homes</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUICK STATS -->
+  <section class="mx-auto max-w-[1400px] px-5 pt-7 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div class="rounded-2xl border border-white/[0.08] bg-[#111111] p-4 sm:p-5">
+        <p class="text-xs text-neutral-500">Available homes</p>
+        <div class="mt-3 flex items-end justify-between gap-2"><span class="text-3xl font-black">{{ properties.length }}</span><span class="text-xl text-[#ff8733]">⌂</span></div>
+      </div>
+      <div class="rounded-2xl border border-white/[0.08] bg-[#111111] p-4 sm:p-5">
+        <p class="text-xs text-neutral-500">Saved properties</p>
+        <div class="mt-3 flex items-end justify-between gap-2"><span class="text-3xl font-black">{{ isLoggedIn ? favourites.size : '—' }}</span><span class="text-xl text-[#ff8733]">♡</span></div>
+      </div>
+      <div class="rounded-2xl border border-white/[0.08] bg-[#111111] p-4 sm:p-5">
+        <p class="text-xs text-neutral-500">Cities to explore</p>
+        <div class="mt-3 flex items-end justify-between gap-2"><span class="text-3xl font-black">{{ cities.length }}</span><span class="text-xl text-[#ff8733]">⌖</span></div>
+      </div>
+      <div class="rounded-2xl border border-white/[0.08] bg-[#111111] p-4 sm:p-5">
+        <p class="text-xs text-neutral-500">Account status</p>
+        <div class="mt-3 flex items-end justify-between gap-2">
+          <span class="text-lg font-bold">{{ isLoggedIn ? (isLandlord ? 'Landlord' : 'Tenant') : 'Guest' }}</span>
+          <span class="text-xl text-[#ff8733]">✳</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+<!-- QUERY MANAGEMENT -->
+@if (isLoggedIn) {
+  <section class="mx-auto max-w-[1400px] px-5 pt-8 sm:px-6 lg:px-8">
+    <div class="grid gap-4 md:grid-cols-2">
+
+      <!-- Available to normal users and landlords -->
+      <a routerLink="/my-queries"
+         class="group rounded-2xl border border-white/10 bg-[#111111] p-6 transition hover:-translate-y-1 hover:border-[#ff8733]/50">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-[#ff8733]">
+              Query history
+            </p>
+            <h2 class="mt-3 text-xl font-black">My Queries</h2>
+            <p class="mt-2 text-sm leading-6 text-neutral-400">
+              Track your property questions and check landlord replies.
+            </p>
+          </div>
+          <span class="text-3xl text-[#ff8733]">↗</span>
+        </div>
+        <p class="mt-5 text-sm font-bold text-[#ff8733]">
+          View my queries →
+        </p>
+      </a>
+
+      <!-- Landlord-only central inbox -->
+      @if (isLandlord) {
+        <a routerLink="/handle-property-queries"
+           class="group rounded-2xl border border-[#ff8733]/20 bg-[#15110e] p-6 transition hover:-translate-y-1 hover:border-[#ff8733]/60">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-[0.2em] text-[#ff8733]">
+                Landlord workspace
+              </p>
+              <h2 class="mt-3 text-xl font-black">Handle Property Queries</h2>
+              <p class="mt-2 text-sm leading-6 text-neutral-400">
+                View pending questions across all your properties and reply from one page.
+              </p>
+            </div>
+            <span class="text-3xl text-[#ff8733]">⌂</span>
+          </div>
+          <p class="mt-5 text-sm font-bold text-[#ff8733]">
+            Manage queries →
+          </p>
+        </a>
+      }
+    </div>
+  </section>
+}
+
+  <!-- FEATURED PROPERTIES -->
+  <section class="mx-auto max-w-[1400px] px-5 pb-8 pt-16 sm:px-6 lg:px-8 lg:pt-20">
+    <div class="mb-7 flex items-end justify-between gap-4">
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-[#ff8733]">✦ Curated for you</p>
+        <h2 class="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Homes worth a look.</h2>
+        <p class="mt-3 text-sm text-neutral-400">Explore standout spaces from the current listings.</p>
+      </div>
+      <div class="flex shrink-0 gap-2">
+        <button type="button" (click)="previousFeatured()" [disabled]="featuredProperties.length <= 3"
+          aria-label="Previous featured properties" class="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-lg transition hover:border-[#ff8733] disabled:opacity-30">←</button>
+        <button type="button" (click)="nextFeatured()" [disabled]="featuredProperties.length <= 3"
+          aria-label="Next featured properties" class="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-lg transition hover:border-[#ff8733] disabled:opacity-30">→</button>
+      </div>
+    </div>
+
+    @if (featuredProperties.length > 0) {
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        @for (property of featuredCarouselItems; track property.id) {
+          <app-property-card [property]="property" mode="featured"
+            [isFavourite]="isFavourite(property.id)"
+            (favouriteToggled)="toggleFavourite($event)"
+            (detailsRequested)="viewDetails($event)" />
+        }
+      </div>
+    } @else {
+      <div class="rounded-2xl border border-white/10 bg-[#111111] p-10 text-center">
+        <div class="text-4xl text-[#ff8733]">⌂</div>
+        <h3 class="mt-4 text-lg font-bold">Your next home is waiting to be listed.</h3>
+        <p class="mt-2 text-sm text-neutral-400">New featured properties will appear here.</p>
+      </div>
+    }
+  </section>
+
+  <!-- LIFESTYLE BANNER -->
+  <section class="mx-auto max-w-[1400px] px-5 py-8 sm:px-6 lg:px-8">
+    <div class="grid overflow-hidden rounded-[26px] border border-white/10 bg-[#111111] md:grid-cols-2">
+      <div class="relative min-h-[260px] overflow-hidden md:min-h-[330px]">
+        <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=85"
+          alt="Warm modern living room" loading="lazy"
+          class="absolute inset-0 h-full w-full object-cover transition duration-700 hover:scale-105" />
+      </div>
+      <div class="flex flex-col justify-center p-7 sm:p-10 lg:p-14">
+        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-[#ff8733]">More than four walls</p>
+        <h2 class="mt-4 text-3xl font-black leading-tight sm:text-4xl">Your next chapter<br />starts at home.</h2>
+        <p class="mt-4 max-w-md text-sm leading-7 text-neutral-400">From a cosy studio to a spacious family apartment, explore places that suit your budget, lifestyle and plans.</p>
+        <button type="button" (click)="scrollToProperties()"
+          class="mt-7 inline-flex w-fit items-center gap-3 rounded-full border border-white/15 px-5 py-3 text-sm font-semibold transition hover:border-[#ff8733] hover:text-[#ff8733]">
+          Find your space <span>↗</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROPERTY LISTINGS -->
+  <section id="explore" class="mx-auto max-w-[1400px] scroll-mt-28 px-5 py-12 sm:px-6 lg:px-8 lg:py-16">
+    <div class="mb-8">
+      <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-[#ff8733]">The collection</p>
+      <div class="mt-3 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+          <h2 class="text-3xl font-black tracking-tight sm:text-4xl">Find your kind of place.</h2>
+          <p class="mt-3 max-w-xl text-sm leading-6 text-neutral-400">Search by location, set your budget and narrow down the details that matter to you.</p>
+        </div>
+        <span class="w-fit rounded-full border border-white/10 bg-[#111111] px-4 py-2 text-xs text-neutral-300">{{ filteredProperties.length }} matching homes</span>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="rounded-[24px] border border-white/10 bg-[#111111] p-4 sm:p-6 lg:p-7">
+      <div class="mb-5 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#ff6b00]/10 text-xl text-[#ff8733]">⌕</span>
+          <div><h3 class="font-bold">Refine your search</h3><p class="mt-1 text-xs text-neutral-500">Make the shortlist yours.</p></div>
+        </div>
+        <button type="button" (click)="clearFilters()" class="text-xs font-semibold text-neutral-400 transition hover:text-[#ff8733]">Reset all</button>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div>
+          <label for="propertySearch" class="mb-2 block text-xs font-semibold text-neutral-300">Keyword or location</label>
+          <input id="propertySearch" type="search" [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()" placeholder="Try Gurgaon, balcony..."
+            class="w-full rounded-xl border border-white/10 bg-[#090909] px-4 py-3.5 text-sm outline-none placeholder:text-neutral-600 focus:border-[#ff8733]" />
+        </div>
+        <div>
+          <label for="cityFilter" class="mb-2 block text-xs font-semibold text-neutral-300">City</label>
+          <select id="cityFilter" [(ngModel)]="selectedCity" (ngModelChange)="applyFilters()"
+            class="w-full rounded-xl border border-white/10 bg-[#090909] px-4 py-3.5 text-sm outline-none focus:border-[#ff8733]">
+            <option value="">All cities</option>
+            @for (city of cities; track city) {
+              <option [value]="city">{{ city }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label for="bedroomFilter" class="mb-2 block text-xs font-semibold text-neutral-300">Bedrooms</label>
+          <select id="bedroomFilter" [(ngModel)]="selectedBedrooms" (ngModelChange)="applyFilters()"
+            class="w-full rounded-xl border border-white/10 bg-[#090909] px-4 py-3.5 text-sm outline-none focus:border-[#ff8733]">
+            <option value="">Any number</option>
+            <option [ngValue]="1">1 bedroom</option>
+            <option [ngValue]="2">2 bedrooms</option>
+            <option [ngValue]="3">3 bedrooms</option>
+            <option [ngValue]="4">4 bedrooms</option>
+          </select>
+        </div>
+        <div>
+          <label for="minRent" class="mb-2 block text-xs font-semibold text-neutral-300">Minimum monthly rent (₹)</label>
+          <input id="minRent" type="number" min="0" [(ngModel)]="minRent" (ngModelChange)="applyFilters()" placeholder="₹ 5,000"
+            class="w-full rounded-xl border border-white/10 bg-[#090909] px-4 py-3.5 text-sm outline-none placeholder:text-neutral-600 focus:border-[#ff8733]" />
+        </div>
+        <div>
+          <label for="maxRent" class="mb-2 block text-xs font-semibold text-neutral-300">Maximum monthly rent (₹)</label>
+          <input id="maxRent" type="number" min="0" [(ngModel)]="maxRent" (ngModelChange)="applyFilters()" placeholder="₹ 50,000"
+            class="w-full rounded-xl border border-white/10 bg-[#090909] px-4 py-3.5 text-sm outline-none placeholder:text-neutral-600 focus:border-[#ff8733]" />
+        </div>
+        <div>
+          <label for="sortBy" class="mb-2 block text-xs font-semibold text-neutral-300">Sort properties</label>
+          <select id="sortBy" [(ngModel)]="sortBy" (ngModelChange)="applyFilters()"
+            class="w-full rounded-xl border border-white/10 bg-[#090909] px-4 py-3.5 text-sm outline-none focus:border-[#ff8733]">
+            <option value="newest">Recently added</option>
+            <option value="rent-low">Rent: low to high</option>
+            <option value="rent-high">Rent: high to low</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- AMENITIES -->
+      <div class="mt-6 border-t border-white/[0.08] pt-6">
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div><h3 class="text-sm font-bold">Amenities</h3><p class="mt-1 text-xs text-neutral-500">Search and select the features you need.</p></div>
+          <span class="rounded-full border border-[#ff8733]/20 bg-[#ff8733]/10 px-3 py-1.5 text-xs font-semibold text-[#ff8733]">{{ selectedAmenities.length }} selected</span>
+        </div>
+
+        <form (ngSubmit)="addAmenity()" class="flex flex-col gap-2 sm:flex-row">
+          <input id="amenityInput" name="amenityInput" type="text" [(ngModel)]="amenityInput" autocomplete="off" placeholder="Search parking, gym, Wi-Fi..."
+            class="min-w-0 flex-1 rounded-xl border border-white/10 bg-[#090909] px-4 py-3.5 text-sm outline-none placeholder:text-neutral-600 focus:border-[#ff8733]" />
+          <button type="submit" [disabled]="!amenityInput.trim()" class="rounded-xl bg-[#ff6b00] px-5 py-3.5 text-sm font-bold transition hover:bg-[#ff8126] disabled:cursor-not-allowed disabled:opacity-40">Add filter +</button>
+        </form>
+
+        @if (amenityInput.trim()) {
+          <div class="mt-2 overflow-hidden rounded-xl border border-white/10 bg-[#090909]">
+            <div class="flex items-center justify-between border-b border-white/[0.08] px-4 py-3"><span class="text-xs text-neutral-400">Suggestions</span><span class="text-xs text-neutral-500">Up to {{ amenitySuggestionLimit }}</span></div>
+            <div class="max-h-52 overflow-y-auto">
+              @for (amenity of filteredAmenityOptions; track amenity) {
+                <button type="button" (click)="toggleAmenity(amenity); amenityInput = ''" class="flex w-full items-center justify-between gap-3 border-b border-white/[0.05] px-4 py-3 text-left text-sm last:border-0 hover:bg-white/[0.04]">
+                  <span class="truncate">{{ amenity }}</span>
+                  <span class="shrink-0 text-xs text-[#ff8733]">{{ selectedAmenities.some(item => item.toLowerCase() === amenity.toLowerCase()) ? '✓ Selected' : '+ Add' }}</span>
+                </button>
+              } @empty {
+                <p class="px-4 py-4 text-sm text-neutral-500">No existing matches. You can add your typed filter.</p>
+              }
+            </div>
+            @if (filteredAmenityOptions.length === amenitySuggestionLimit) {
+              <p class="border-t border-white/[0.08] px-4 py-2 text-xs text-neutral-500">Refine the search to find other matches.</p>
+            }
+          </div>
+        }
+
+        @if (selectedAmenities.length > 0) {
+          <div class="mt-4 rounded-xl border border-white/[0.08] bg-[#090909] p-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-500">Active filters</span>
+              <button type="button" (click)="clearAmenities()" class="text-xs font-semibold text-[#ff8733] hover:text-orange-300">Clear amenities</button>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-2">
+              @for (amenity of visibleSelectedAmenities; track amenity) {
+                <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-[#ff8733]/20 bg-[#ff8733]/10 py-2 pl-3 pr-2 text-xs text-[#ffb077]">
+                  <span class="max-w-48 truncate">{{ amenity }}</span>
+                  <button type="button" (click)="removeAmenity(amenity)" [attr.aria-label]="'Remove ' + amenity" class="rounded-full px-1 text-white hover:text-red-400">×</button>
+                </span>
+              }
+            </div>
+            @if (selectedAmenities.length > amenityDisplayLimit) {
+              <button type="button" (click)="showAllSelectedAmenities = !showAllSelectedAmenities" class="mt-3 text-xs font-semibold text-[#ff8733]">
+                {{ showAllSelectedAmenities ? 'Show fewer' : '+' + hiddenSelectedAmenitiesCount + ' more selected' }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- LISTING RESULTS -->
+    <div class="mt-8 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+      <div><h3 class="text-xl font-black">Available properties</h3><p class="mt-1 text-xs text-neutral-500">Find the right place at the right price.</p></div>
+      <label class="flex items-center gap-3 text-xs text-neutral-400">
+        Show per page
+        <select [value]="pageSize" (change)="changePageSize($any($event.target).value)" class="rounded-xl border border-white/10 bg-[#111111] px-3 py-2.5 text-white outline-none focus:border-[#ff8733]">
+          <option value="3">3 homes</option>
+          <option value="6">6 homes</option>
+          <option value="9">9 homes</option>
+        </select>
+      </label>
+    </div>
+
+    @if (paginatedProperties.length > 0) {
+      <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        @for (property of paginatedProperties; track property.id) {
+          <app-property-card [property]="property" mode="browse"
+            [isFavourite]="isFavourite(property.id)"
+            (favouriteToggled)="toggleFavourite($event)"
+            (detailsRequested)="viewDetails($event)" />
+        }
+      </div>
+
+      <div class="mt-8 flex flex-col justify-between gap-4 border-t border-white/[0.08] pt-6 sm:flex-row sm:items-center">
+        <p class="text-xs text-neutral-500">Showing <span class="font-semibold text-white">{{ firstVisibleResult }}–{{ lastVisibleResult }}</span> of {{ filteredProperties.length }} homes</p>
+        <nav aria-label="Property pagination" class="flex flex-wrap items-center gap-2">
+          <button type="button" (click)="previousPage()" [disabled]="currentPage === 1" class="rounded-full border border-white/10 px-4 py-2.5 text-xs font-semibold hover:border-[#ff8733] disabled:opacity-30">← Previous</button>
+          @for (page of pageNumbers; track page) {
+            <button type="button" (click)="goToPage(page)" [attr.aria-current]="currentPage === page ? 'page' : null"
+              [class]="currentPage === page ? 'h-10 min-w-10 rounded-full bg-[#ff6b00] px-3 text-xs font-bold text-white' : 'h-10 min-w-10 rounded-full border border-white/10 px-3 text-xs font-bold text-neutral-300 hover:border-[#ff8733]'">{{ page }}</button>
+          }
+          <button type="button" (click)="nextPage()" [disabled]="currentPage >= totalPages" class="rounded-full border border-white/10 px-4 py-2.5 text-xs font-semibold hover:border-[#ff8733] disabled:opacity-30">Next →</button>
+        </nav>
+      </div>
+    } @else {
+      <div class="mt-5 rounded-3xl border border-white/10 bg-[#111111] px-5 py-16 text-center">
+        <span class="text-5xl text-[#ff8733]">⌂</span>
+        <h3 class="mt-5 text-xl font-black">No homes found just yet.</h3>
+        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-neutral-500">Try a different city, adjust your budget or remove an amenity filter.</p>
+        <button type="button" (click)="clearFilters()" class="mt-6 rounded-full bg-[#ff6b00] px-6 py-3 text-sm font-bold hover:bg-[#ff8126]">Clear filters</button>
+      </div>
+    }
+  </section>
+
+  <!-- LANDLORD SECTION -->
+  <section class="mx-auto max-w-[1400px] px-5 pb-16 sm:px-6 lg:px-8">
+    @if (isLandlord) {
+      <div class="relative overflow-hidden rounded-[26px] border border-[#ff8733]/20 bg-[#15110e] p-7 sm:p-10 lg:p-12">
+        <div class="pointer-events-none absolute -right-10 -top-20 h-64 w-64 rounded-full bg-[#ff6b00]/10 blur-3xl"></div>
+        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-[#ff8733]">For property owners</p>
+        <h2 class="relative mt-3 text-3xl font-black sm:text-4xl">Make your next listing count.</h2>
+        <p class="relative mt-3 max-w-xl text-sm leading-7 text-neutral-400">Manage existing properties or bring a new space to the RentHub community.</p>
+        <div class="relative mt-6 flex flex-wrap gap-3">
+          <a routerLink="/my-listings" class="rounded-full border border-white/15 px-5 py-3 text-sm font-semibold hover:border-[#ff8733]">Manage listings</a>
+          <a routerLink="/property-form" class="rounded-full bg-[#ff6b00] px-5 py-3 text-sm font-bold hover:bg-[#ff8126]">+ Add a property</a>
+        </div>
+      </div>
+    } @else if (!isLoggedIn) {
+      <div class="grid overflow-hidden rounded-[26px] border border-white/10 bg-[#111111] md:grid-cols-[1fr_0.8fr]">
+        <div class="p-7 sm:p-10 lg:p-12">
+          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-[#ff8733]">Grow with RentHub</p>
+          <h2 class="mt-4 text-3xl font-black leading-tight sm:text-4xl">Have a place<br />worth sharing?</h2>
+          <p class="mt-4 max-w-lg text-sm leading-7 text-neutral-400">Create an account to apply for landlord access, publish rental listings and connect with prospective tenants.</p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <a routerLink="/register" class="rounded-full bg-[#ff6b00] px-6 py-3 text-sm font-bold transition hover:bg-[#ff8126]">Create account →</a>
+            <a routerLink="/login" class="rounded-full border border-white/15 px-6 py-3 text-sm font-semibold transition hover:border-[#ff8733]">Log in</a>
+          </div>
+        </div>
+        <div class="relative hidden min-h-[300px] md:block">
+          <img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=85" alt="Modern residential property interior" loading="lazy" class="absolute inset-0 h-full w-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-r from-[#111111]/50 via-transparent to-black/10"></div>
+        </div>
+      </div>
+    } @else {
+      <div class="grid overflow-hidden rounded-[26px] border border-white/10 bg-[#111111] md:grid-cols-[1fr_0.8fr]">
+        <div class="p-7 sm:p-10 lg:p-12">
+          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-[#ff8733]">Grow with RentHub</p>
+          <h2 class="mt-4 text-3xl font-black leading-tight sm:text-4xl">Have a place<br />worth sharing?</h2>
+          <p class="mt-4 max-w-lg text-sm leading-7 text-neutral-400">Apply for landlord access to create listings, manage rental properties and connect with prospective tenants.</p>
+
+          @if (promotionStatus === 'pending') {
+            <p class="mt-6 rounded-xl border border-yellow-500/20 bg-yellow-500/10 p-4 text-sm text-yellow-300">Your landlord access request is awaiting review.</p>
+          } @else {
+            @if (promotionStatus === 'rejected') {
+              <p class="mt-4 text-sm text-red-400">Your previous request was rejected. You can submit another request below.</p>
+            }
+
+            <form (ngSubmit)="requestPromotion()" #promotionForm="ngForm" class="mt-6 space-y-3">
+              <label for="promotionMessage" class="block text-xs font-semibold text-neutral-300">Tell us about your plans</label>
+              <textarea id="promotionMessage" name="promotionMessage" [(ngModel)]="promotionMessage" required minlength="10" maxlength="500" #promotionMessageField="ngModel" rows="3" placeholder="I would like to list and manage rental properties..."
+                class="w-full resize-y rounded-xl border border-white/10 bg-[#090909] px-4 py-3 text-sm outline-none placeholder:text-neutral-600 focus:border-[#ff8733]"></textarea>
+              @if (promotionMessageField.invalid && promotionMessageField.touched) {
+                <p class="text-xs text-red-400">Please enter at least 10 characters.</p>
+              }
+              <button type="submit" [disabled]="promotionMessage.trim().length < 10" class="rounded-full bg-[#ff6b00] px-6 py-3 text-sm font-bold transition hover:bg-[#ff8126] disabled:cursor-not-allowed disabled:opacity-40">Request landlord access →</button>
+            </form>
+          }
+
+          @if (feedback) {
+            <p role="status" class="mt-4 text-sm" [class.text-red-400]="feedbackError" [class.text-green-400]="!feedbackError">{{ feedback }}</p>
+          }
+        </div>
+
+        <div class="relative hidden min-h-[380px] md:block">
+          <img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=85" alt="Modern residential property interior" loading="lazy" class="absolute inset-0 h-full w-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-r from-[#111111]/50 via-transparent to-black/10"></div>
+          <div class="absolute bottom-6 left-6 rounded-2xl border border-white/15 bg-black/40 px-5 py-4 backdrop-blur-xl">
+            <p class="text-xs text-neutral-300">A new opportunity</p>
+            <p class="mt-1 font-bold">Your property. Your future.</p>
+          </div>
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-white/[0.08] bg-[#080808]">
+    <div class="mx-auto flex max-w-[1400px] flex-col gap-5 px-5 py-8 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+      <a routerLink="/user-dashboard" class="w-fit text-xl font-black tracking-tight">rent<span class="text-[#ff7a1a]">hub</span><span class="text-[#ff7a1a]">.</span></a>
+      <p class="text-xs text-neutral-500">Find a place to belong.</p>
+      <div class="flex flex-wrap gap-5 text-xs text-neutral-500">
+        <button type="button" (click)="scrollToProperties()" class="hover:text-white">Explore rentals</button>
+        @if (isLoggedIn) {
+          <a routerLink="/favourites" class="hover:text-white">Favourites</a>
+          <a routerLink="/profile" class="hover:text-white">Profile</a>
+          <button type="button" (click)="logout()" class="hover:text-white">Log out</button>
+        } @else {
+          <a routerLink="/login" class="hover:text-white">Log in</a>
+          <a routerLink="/register" class="hover:text-white">Create account</a>
+        }
+      </div>
+      <p class="text-xs text-neutral-600">© 2026 RentHub</p>
+    </div>
+  </footer>
+</main>

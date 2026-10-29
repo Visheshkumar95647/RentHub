@@ -1,0 +1,1039 @@
+<div class="min-h-screen bg-[#0a0a0a] text-white">
+
+  <!-- Navbar -->
+
+  <header class="sticky top-0 z-30 border-b border-white/10 bg-[#0a0a0a]/95 backdrop-blur">
+
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+
+      <!-- Common RentHub branding -->
+
+      <a
+
+        routerLink="/"
+
+        class="flex shrink-0 items-center gap-3"
+
+        aria-label="RentHub Home"
+
+      >
+
+        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#ff6b00] text-xl font-black text-white">
+
+          R
+
+        </span>
+
+        <span class="text-2xl font-black tracking-tight text-white">
+
+          Rent<span class="text-[#ff6b00]">Hub</span><span class="text-[#ff6b00]">.</span>
+
+        </span>
+
+      </a>
+
+      <button
+
+        type="button"
+
+        (click)="logout()"
+
+        class="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-gray-300 transition hover:border-red-500 hover:text-red-400"
+
+      >
+
+        Logout
+
+      </button>
+
+    </div>
+
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+
+    <!-- Hero Section -->
+
+    <section class="relative mb-8 overflow-hidden rounded-2xl border border-white/10">
+
+      <img
+
+        src="https\://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1920&q=85"
+
+        alt="Modern luxury home interior"
+
+        class="absolute inset-0 h-full w-full object-cover"
+
+      />
+
+      <div class="absolute inset-0 bg-gradient-to-r from-black/95 via-black/75 to-black/30"></div>
+
+      <div class="relative z-10 flex min-h-[280px] flex-col justify-center px-6 py-12 sm:min-h-[340px] sm:px-10 lg:px-14">
+
+        <p class="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#ff6b00]">
+
+          Administration
+
+        </p>
+
+        <h1 class="text-3xl font-black sm:text-4xl lg:text-5xl">
+
+          Admin Dashboard
+
+        </h1>
+
+        <p class="mt-4 max-w-xl text-sm leading-6 text-gray-300 sm:text-base">
+
+          Manage users, review landlord access requests, and oversee property listings — all from one place.
+
+        </p>
+
+      </div>
+
+    </section>
+
+    <!-- Displays success or error messages after admin actions. -->
+
+  <!-- Feedback -->
+
+    @if (feedback) {
+
+      <div
+
+        class="mb-6 rounded-xl border p-4 text-sm"
+
+        [class.border-red-500/30]="feedbackError"
+
+        [class.bg-red-500/10]="feedbackError"
+
+        [class.text-red-300]="feedbackError"
+
+        [class.border-green-500/30]="!feedbackError"
+
+        [class.bg-green-500/10]="!feedbackError"
+
+        [class.text-green-300]="!feedbackError"
+
+        role="status"
+
+      >
+
+        {{ feedback }}
+
+      </div>
+
+    }
+
+    <!-- Shows summary counts for users, landlords, pending requests, and properties. -->
+
+  <!-- Dashboard Statistics -->
+
+    <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+
+      <article class="rounded-2xl border border-white/10 bg-[#141414] p-5">
+
+        <div class="flex items-center justify-between">
+
+          <p class="text-sm text-gray-400">Total Users</p>
+
+          <span class="text-xl">👥</span>
+
+        </div>
+
+        <p class="mt-4 text-3xl font-black">{{ totalUsers }}</p>
+
+        <p class="mt-1 text-xs text-gray-500">Registered non-admin users</p>
+
+      </article>
+
+      <article class="rounded-2xl border border-white/10 bg-[#141414] p-5">
+
+        <div class="flex items-center justify-between">
+
+          <p class="text-sm text-gray-400">Regular Users</p>
+
+          <span class="text-xl">🧑</span>
+
+        </div>
+
+        <p class="mt-4 text-3xl font-black">{{ totalRegularUsers }}</p>
+
+        <p class="mt-1 text-xs text-gray-500">Tenant accounts</p>
+
+      </article>
+
+      <article class="rounded-2xl border border-white/10 bg-[#141414] p-5">
+
+        <div class="flex items-center justify-between">
+
+          <p class="text-sm text-gray-400">Landlords</p>
+
+          <span class="text-xl">🏠</span>
+
+        </div>
+
+        <p class="mt-4 text-3xl font-black">{{ totalLandlords }}</p>
+
+        <p class="mt-1 text-xs text-gray-500">Approved landlord accounts</p>
+
+      </article>
+
+      <article class="rounded-2xl border border-white/10 bg-[#141414] p-5">
+
+        <div class="flex items-center justify-between">
+
+          <p class="text-sm text-gray-400">Pending Requests</p>
+
+          <span class="text-xl">⏳</span>
+
+        </div>
+
+        <p class="mt-4 text-3xl font-black text-[#ff6b00]">{{ pendingRequests }}</p>
+
+        <p class="mt-1 text-xs text-gray-500">Awaiting admin review</p>
+
+      </article>
+
+      <article class="rounded-2xl border border-white/10 bg-[#141414] p-5">
+
+        <div class="flex items-center justify-between">
+
+          <p class="text-sm text-gray-400">Properties</p>
+
+          <span class="text-xl">🏢</span>
+
+        </div>
+
+        <p class="mt-4 text-3xl font-black">{{ totalProperties }}</p>
+
+        <p class="mt-1 text-xs text-gray-500">Total property listings</p>
+
+      </article>
+
+    </section>
+
+    <!-- Lists landlord promotion requests so the admin can approve or reject them. -->
+
+  <!-- Landlord Access Requests -->
+
+    <section class="mt-10">
+
+      <div class="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+
+        <div>
+
+          <h2 class="text-2xl font-bold">Landlord Access Requests</h2>
+
+          <p class="mt-1 text-sm text-gray-400">
+
+            Review requests from users who want to become landlords.
+
+          </p>
+
+        </div>
+
+        <span class="w-fit rounded-full border border-[#ff6b00]/30 bg-[#ff6b00]/10 px-3 py-1.5 text-sm font-semibold text-[#ff6b00]">
+
+          {{ pendingRequests }} pending
+
+        </span>
+
+      </div>
+
+      @if (requests.length > 0) {
+
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+
+          @for (request of requests; track request.id) {
+
+            <article class="rounded-2xl border border-white/10 bg-[#141414] p-5 sm:p-6">
+
+              <div class="flex flex-col justify-between gap-4 sm:flex-row">
+
+                <div class="flex items-start gap-4">
+
+                  <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#ff6b00]/10 text-lg font-bold text-[#ff6b00]">
+
+                    {{ request.fullName.charAt(0).toUpperCase() }}
+
+                  </div>
+
+                  <div class="min-w-0">
+
+                    <h3 class="font-bold">{{ request.fullName }}</h3>
+
+                    <p class="mt-1 break-all text-sm text-gray-400">{{ request.email }}</p>
+
+                    <p class="mt-1 text-sm text-gray-400">{{ request.mobile }}</p>
+
+                  </div>
+
+                </div>
+
+                <span class="h-fit w-fit rounded-full border border-yellow-500/20 bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-300">
+
+                  Pending
+
+                </span>
+
+              </div>
+
+              @if (request.promotionMessage) {
+
+                <div class="mt-5 rounded-xl border border-white/5 bg-[#0a0a0a] p-4">
+
+                  <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-500">
+
+                    Request message
+
+                  </p>
+
+                  <p class="whitespace-pre-wrap text-sm leading-6 text-gray-300">
+
+                    {{ request.promotionMessage }}
+
+                  </p>
+
+                </div>
+
+              }
+
+              @if (request.promotionRequestedAt) {
+
+                <p class="mt-4 text-xs text-gray-500">
+
+                  Requested {{ request.promotionRequestedAt | date:'mediumDate' }}
+
+                </p>
+
+              }
+
+              <div class="mt-5 flex flex-col gap-3 sm:flex-row">
+
+                <button
+
+                  type="button"
+
+                  (click)="review(request.id, 'approved')"
+
+                  [disabled]="isProcessing"
+
+                  class="flex-1 rounded-xl bg-[#ff6b00] px-4 py-3 text-sm font-bold text-white transition hover:bg-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
+
+                >
+
+                  Approve Request
+
+                </button>
+
+                <button
+
+                  type="button"
+
+                  (click)="review(request.id, 'rejected')"
+
+                  [disabled]="isProcessing"
+
+                  class="flex-1 rounded-xl border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-400 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+
+                >
+
+                  Reject Request
+
+                </button>
+
+              </div>
+
+            </article>
+
+          }
+
+        </div>
+
+      } @else {
+
+        <div class="rounded-2xl border border-dashed border-white/10 bg-[#141414] px-5 py-12 text-center">
+
+          <div class="text-3xl">✓</div>
+
+          <h3 class="mt-3 font-bold">All caught up</h3>
+
+          <p class="mt-2 text-sm text-gray-400">
+
+            There are no pending landlord access requests.
+
+          </p>
+
+        </div>
+
+      }
+
+    </section>
+
+    <!-- Provides searchable, role-filtered, paginated user account information. -->
+
+  <!-- User Directory -->
+
+    <section class="mt-10 rounded-2xl border border-white/10 bg-[#141414] p-5 sm:p-6">
+
+      <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+
+        <div>
+
+          <h2 class="text-2xl font-bold">User Directory</h2>
+
+          <p class="mt-1 text-sm text-gray-400">
+
+            Search registered accounts and filter by role.
+
+          </p>
+
+        </div>
+
+        <span class="text-sm text-gray-400">
+
+          {{ filteredUsers.length }} matching user(s)
+
+        </span>
+
+      </div>
+
+      <!-- These controls update the search text and selected role through component handlers. -->
+
+      <!-- User search and role filter -->
+
+      <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+
+        <input
+
+          type="text"
+
+          [ngModel]="userSearch"
+
+          (ngModelChange)="onUserSearchChange($event)"
+
+          name="userSearch"
+
+          placeholder="Search name, email or mobile..."
+
+          class="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white outline-none placeholder:text-gray-500 focus:border-[#ff6b00]"
+
+        />
+
+        <select
+
+          [ngModel]="selectedRole"
+
+          (ngModelChange)="onUserRoleChange($event)"
+
+          name="selectedRole"
+
+          aria-label="Filter users by role"
+
+          class="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white outline-none focus:border-[#ff6b00]"
+
+        >
+
+          <option value="all">All Roles</option>
+
+          <option value="user">User</option>
+
+          <option value="landlord">Landlord</option>
+
+          <option value="admin">Admin</option>
+
+        </select>
+
+      </div>
+
+      @if (paginatedUsers.length > 0) {
+
+        <!-- Displays the current page of filtered users in a horizontally scrollable table on small screens. -->
+
+          <!-- User table without internal vertical scrolling -->
+
+        <div class="mt-6 overflow-x-auto rounded-xl border border-white/10">
+
+          <table class="w-full min-w-[650px] text-left">
+
+            <thead class="bg-[#1c1c1c]">
+
+              <tr class="border-b border-white/10 text-xs uppercase tracking-wider text-gray-500">
+
+                <th class="px-4 py-4 font-semibold">User</th>
+
+                <th class="px-4 py-4 font-semibold">Email</th>
+
+                <th class="px-4 py-4 font-semibold">Mobile</th>
+
+                <th class="px-4 py-4 font-semibold">Role</th>
+
+                <th class="px-4 py-4 font-semibold">Status</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              @for (user of paginatedUsers; track user.id) {
+
+                <tr class="border-b border-white/5 transition-colors duration-200 hover:bg-white/[0.04]">
+
+                  <td class="px-4 py-4">
+
+                    <div class="flex items-center gap-3">
+
+                      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5 font-bold text-[#ff6b00]">
+
+                        {{ user.fullName.charAt(0).toUpperCase() }}
+
+                      </div>
+
+                      <span class="font-medium">{{ user.fullName }}</span>
+
+                    </div>
+
+                  </td>
+
+                  <td class="px-4 py-4 text-sm text-gray-400">
+
+                    {{ user.email }}
+
+                  </td>
+
+                  <td class="px-4 py-4 text-sm text-gray-400">
+
+                    {{ user.mobile }}
+
+                  </td>
+
+                  <td class="px-4 py-4">
+
+                    <span
+
+                      class="rounded-full border px-3 py-1 text-xs font-semibold"
+
+                      [class.border-purple-500/30]="user.role === 'admin'"
+
+                      [class.bg-purple-500/10]="user.role === 'admin'"
+
+                      [class.text-purple-300]="user.role === 'admin'"
+
+                      [class.border-orange-500/30]="user.role === 'landlord'"
+
+                      [class.bg-orange-500/10]="user.role === 'landlord'"
+
+                      [class.text-orange-400]="user.role === 'landlord'"
+
+                      [class.border-white/10]="user.role === 'user'"
+
+                      [class.bg-white/5]="user.role === 'user'"
+
+                      [class.text-gray-300]="user.role === 'user'"
+
+                    >
+
+                      {{ user.role | titlecase }}
+
+                    </span>
+
+                  </td>
+
+                  <td class="px-4 py-4">
+
+                    @if (user.role === 'landlord') {
+
+                      <span class="text-sm text-green-400">Approved</span>
+
+                    } @else if (user.promotionStatus === 'pending') {
+
+                      <span class="text-sm text-yellow-400">Pending request</span>
+
+                    } @else if (user.promotionStatus === 'rejected') {
+
+                      <span class="text-sm text-red-400">Request rejected</span>
+
+                    } @else if (user.role === 'admin') {
+
+                      <span class="text-sm text-purple-300">Administrator</span>
+
+                    } @else {
+
+                      <span class="text-sm text-gray-400">Regular account</span>
+
+                    }
+
+                  </td>
+
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+        <!-- Shows the result range and navigation controls for the user list. -->
+
+        <!-- User pagination controls -->
+
+        <div class="mt-6 flex flex-col gap-4 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+
+          <p class="text-sm text-gray-400">
+
+            Showing
+
+            <span class="font-semibold text-white">{{ firstUserResult }}</span>
+
+            to
+
+            <span class="font-semibold text-white">{{ lastUserResult }}</span>
+
+            of
+
+            <span class="font-semibold text-white">{{ filteredUsers.length }}</span>
+
+            users
+
+          </p>
+
+          <div class="flex flex-wrap items-center gap-3">
+
+            <!-- Lets the admin choose how many user records appear on each page. -->
+
+            <!-- User page size -->
+
+            <select
+
+              [ngModel]="userPageSize"
+
+              (ngModelChange)="onUserPageSizeChange($event)"
+
+              name="userPageSize"
+
+              aria-label="Users per page"
+
+              class="rounded-lg border border-white/10 bg-[#0a0a0a] px-3 py-2 text-sm text-white outline-none focus:border-[#ff6b00]"
+
+            >
+
+              <option [ngValue]="3">3 per page</option>
+
+              <option [ngValue]="6">6 per page</option>
+
+              <option [ngValue]="9">9 per page</option>
+
+            </select>
+
+            <nav aria-label="User pagination" class="flex flex-wrap items-center gap-2">
+
+              <button
+
+                type="button"
+
+                (click)="previousUserPage()"
+
+                [disabled]="userCurrentPage === 1"
+
+                class="rounded-lg border border-white/10 px-3 py-2 text-sm text-gray-300 transition hover:border-[#ff6b00] disabled:cursor-not-allowed disabled:opacity-40"
+
+              >
+
+                Previous
+
+              </button>
+
+              @for (page of userPageNumbers; track page) {
+
+                <button
+
+                  type="button"
+
+                  (click)="goToUserPage(page)"
+
+                  [attr.aria-current]="userCurrentPage === page ? 'page' : null"
+
+                  [attr.aria-label]="'Go to user page ' + page"
+
+                  class="min-w-10 rounded-lg border px-3 py-2 text-sm font-semibold transition"
+
+                  [class.border-[#ff6b00]]="userCurrentPage === page"
+
+                  [class.bg-[#ff6b00]]="userCurrentPage === page"
+
+                  [class.text-white]="userCurrentPage === page"
+
+                  [class.border-white/10]="userCurrentPage !== page"
+
+                  [class.text-gray-300]="userCurrentPage !== page"
+
+                  [class.hover:border-[#ff6b00]]="userCurrentPage !== page"
+
+                >
+
+                  {{ page }}
+
+                </button>
+
+              }
+
+              <button
+
+                type="button"
+
+                (click)="nextUserPage()"
+
+                [disabled]="userCurrentPage >= totalUserPages"
+
+                class="rounded-lg border border-white/10 px-3 py-2 text-sm text-gray-300 transition hover:border-[#ff6b00] disabled:cursor-not-allowed disabled:opacity-40"
+
+              >
+
+                Next
+
+              </button>
+
+            </nav>
+
+          </div>
+
+        </div>
+
+      } @else {
+
+        <!-- Empty state shown when no users match the search and role filter. -->
+
+          <!-- No users found -->
+
+        <div class="mt-6 rounded-xl border border-dashed border-white/10 px-5 py-10 text-center">
+
+          <p class="font-semibold">No users found</p>
+
+          <p class="mt-2 text-sm text-gray-400">
+
+            Try another name, email, mobile number or role.
+
+          </p>
+
+        </div>
+
+      }
+
+    </section>
+
+    <!-- Displays all property listings with search and pagination for admin review. -->
+
+  <!-- Property Directory -->
+
+    <section class="mt-10 rounded-2xl border border-white/10 bg-[#141414] p-5 sm:p-6">
+
+      <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+
+        <div>
+
+          <h2 class="text-2xl font-bold">Property Directory</h2>
+
+          <p class="mt-1 text-sm text-gray-400">
+
+            Search and browse all rental listings.
+
+          </p>
+
+        </div>
+
+        <span class="w-fit rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-gray-300">
+
+          {{ filteredProperties.length }} result(s)
+
+        </span>
+
+      </div>
+
+      <!-- Search properties by listing details and choose the number of cards per page. -->
+
+      <!-- Property search and page size -->
+
+      <div class="mt-5 flex flex-col gap-3 sm:flex-row">
+
+        <input
+
+          type="text"
+
+          [ngModel]="propertySearch"
+
+          (ngModelChange)="onPropertySearchChange($event)"
+
+          name="propertySearch"
+
+          placeholder="Search title, city, location or landlord..."
+
+          class="min-w-0 flex-1 rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white outline-none placeholder:text-gray-500 focus:border-[#ff6b00]"
+
+        />
+
+        <select
+
+          [ngModel]="propertyPageSize"
+
+          (ngModelChange)="onPropertyPageSizeChange($event)"
+
+          name="propertyPageSize"
+
+          aria-label="Properties per page"
+
+          class="rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white outline-none focus:border-[#ff6b00]"
+
+        >
+
+          <option [ngValue]="3">3 per page</option>
+
+          <option [ngValue]="6">6 per page</option>
+
+          <option [ngValue]="9">9 per page</option>
+
+        </select>
+
+      </div>
+
+      <!-- Renders each property on the current page as a summary card. -->
+
+      <!-- Property cards -->
+
+      @if (paginatedProperties.length > 0) {
+
+        <div class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+
+          @for (property of paginatedProperties; track property.id) {
+
+            <article class="overflow-hidden rounded-xl border border-white/10 bg-[#0a0a0a] transition hover:border-[#ff6b00]/40">
+
+              <div class="relative h-48 overflow-hidden bg-[#202020]">
+
+                <img
+
+                  [src]="property.images[0]"
+
+                  [alt]="property.title"
+
+                  loading="lazy"
+
+                  class="h-full w-full object-cover transition duration-500 hover:scale-105"
+
+                />
+
+                <span class="absolute left-3 top-3 rounded-full border border-white/10 bg-black/70 px-3 py-1 text-xs text-white backdrop-blur">
+
+                  {{ property.furnished }}
+
+                </span>
+
+              </div>
+
+              <div class="p-4">
+
+                <h3 class="line-clamp-1 font-bold text-white">
+
+                  {{ property.title }}
+
+                </h3>
+
+                <p class="mt-1 text-sm text-gray-400">
+
+                  {{ property.location }}, {{ property.city }}
+
+                </p>
+
+                <p class="mt-3 text-xl font-bold text-[#ff6b00]">
+
+                  {{ property.monthlyRent | currency:'INR':'symbol':'1.0-0' }}
+
+                  <span class="text-xs font-normal text-gray-400">/ month</span>
+
+                </p>
+
+                <div class="mt-4 grid grid-cols-3 gap-2 border-y border-white/10 py-3 text-center">
+
+                  <div>
+
+                    <p class="font-bold">{{ property.bedrooms }}</p>
+
+                    <p class="text-xs text-gray-500">Bedrooms</p>
+
+                  </div>
+
+                  <div>
+
+                    <p class="font-bold">{{ property.bathrooms }}</p>
+
+                    <p class="text-xs text-gray-500">Bathrooms</p>
+
+                  </div>
+
+                  <div>
+
+                    <p class="font-bold">{{ property.areaSqFt }}</p>
+
+                    <p class="text-xs text-gray-500">Sq. ft.</p>
+
+                  </div>
+
+                </div>
+
+                <p class="mt-4 text-sm text-gray-300">
+
+                  <span class="text-gray-500">Landlord:</span>
+
+                  {{ property.landlordName }}
+
+                </p>
+
+                <p class="mt-2 text-xs text-gray-500">
+
+                  Listed {{ property.createdAt | date:'mediumDate' }}
+
+                </p>
+
+              </div>
+
+            </article>
+
+          }
+
+        </div>
+
+        <!-- Provides previous, numbered-page, and next navigation for property results. -->
+
+        <!-- Property pagination -->
+
+        <div class="mt-6 flex flex-col gap-4 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+
+          <p class="text-sm text-gray-400">
+
+            Showing
+
+            <span class="font-semibold text-white">{{ firstPropertyResult }}</span>
+
+            to
+
+            <span class="font-semibold text-white">{{ lastPropertyResult }}</span>
+
+            of
+
+            <span class="font-semibold text-white">{{ filteredProperties.length }}</span>
+
+            properties
+
+          </p>
+
+          <nav aria-label="Property pagination" class="flex flex-wrap items-center gap-2">
+
+            <button
+
+              type="button"
+
+              (click)="previousPropertyPage()"
+
+              [disabled]="propertyCurrentPage === 1"
+
+              class="rounded-lg border border-white/10 px-3 py-2 text-sm text-gray-300 transition hover:border-[#ff6b00] disabled:cursor-not-allowed disabled:opacity-40"
+
+            >
+
+              Previous
+
+            </button>
+
+            @for (page of propertyPageNumbers; track page) {
+
+              <button
+
+                type="button"
+
+                (click)="goToPropertyPage(page)"
+
+                [attr.aria-current]="propertyCurrentPage === page ? 'page' : null"
+
+                [attr.aria-label]="'Go to property page ' + page"
+
+                class="min-w-10 rounded-lg border px-3 py-2 text-sm font-semibold transition"
+
+                [class.border-[#ff6b00]]="propertyCurrentPage === page"
+
+                [class.bg-[#ff6b00]]="propertyCurrentPage === page"
+
+                [class.text-white]="propertyCurrentPage === page"
+
+                [class.border-white/10]="propertyCurrentPage !== page"
+
+                [class.text-gray-300]="propertyCurrentPage !== page"
+
+                [class.hover:border-[#ff6b00]]="propertyCurrentPage !== page"
+
+              >
+
+                {{ page }}
+
+              </button>
+
+            }
+
+            <button
+
+              type="button"
+
+              (click)="nextPropertyPage()"
+
+              [disabled]="propertyCurrentPage >= totalPropertyPages"
+
+              class="rounded-lg border border-white/10 px-3 py-2 text-sm text-gray-300 transition hover:border-[#ff6b00] disabled:cursor-not-allowed disabled:opacity-40"
+
+            >
+
+              Next
+
+            </button>
+
+          </nav>
+
+        </div>
+
+      } @else {
+
+        <!-- Empty state shown when the property search returns no results. -->
+
+          <!-- No properties found -->
+
+        <div class="mt-6 rounded-xl border border-dashed border-white/10 px-5 py-12 text-center">
+
+          <div class="text-3xl">🏠</div>
+
+          <h3 class="mt-3 font-semibold text-white">No properties found</h3>
+
+          <p class="mt-2 text-sm text-gray-400">
+
+            Try a different title, city, location or landlord name.
+
+          </p>
+
+        </div>
+
+      }
+
+    </section>
+
+    <!-- Simple footer identifying this page as the RentHub admin dashboard. -->
+
+  <!-- Footer -->
+
+    <footer class="mt-10 border-t border-white/10 py-6 text-center text-xs text-gray-500">
+
+      RentHub Admin Dashboard
+
+    </footer>
+
+  </main>
+
+</div>

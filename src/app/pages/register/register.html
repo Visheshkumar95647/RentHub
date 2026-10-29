@@ -1,0 +1,115 @@
+
+<!-- Main container: centers the registration card and sets the dark background -->
+<main class="flex min-h-screen items-center justify-center bg-[#0a0a0a] px-5 py-10 text-white">
+
+  <!-- Registration card -->
+  <section class="w-full max-w-lg rounded-3xl border border-white/10 bg-[#141414] p-7 shadow-2xl sm:p-9">
+
+    <!-- RentHub logo; clicking it navigates to the login page -->
+    <a routerLink="/login" class="text-2xl font-black">
+      Rent<span class="text-[#ff6b00]">Hub</span>
+    </a>
+
+    <!-- Registration page heading and description -->
+    <p class="mt-8 text-xs font-bold uppercase tracking-[0.2em] text-[#ff6b00]">Get started</p>
+    <h1 class="mt-2 text-3xl font-black">Create your account</h1>
+    <p class="mt-2 text-sm leading-6 text-neutral-400">
+      Register once. You can request landlord access later.
+    </p>
+
+    <!-- Registration form using Angular template-driven forms -->
+    <!-- onSubmit() is called when the user submits the form -->
+    <form #registerForm="ngForm" (ngSubmit)="onSubmit(registerForm)" novalidate class="mt-7 space-y-4">
+
+      <!-- Full name field -->
+      <div>
+        <label for="fullName" class="mb-2 block text-sm font-semibold">Full name</label>
+
+        <!-- ngModel connects the input to the fullName property -->
+        <!-- required and minlength validate the user's name -->
+        <input id="fullName" name="fullName" [(ngModel)]="fullName" required minlength="2" autocomplete="name" #nameModel="ngModel" placeholder="Your full name"
+          class="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 outline-none focus:border-[#ff6b00]" />
+
+        <!-- Show an error if the name is invalid and the field was touched or the form submitted -->
+        @if (nameModel.invalid && (nameModel.touched || submitted)) {
+          <p class="mt-1 text-xs text-red-400">Enter your name (at least 2 characters).</p>
+        }
+      </div>
+
+      <!-- Email address field -->
+      <div>
+        <label for="email" class="mb-2 block text-sm font-semibold">Email address</label>
+
+        <!-- Validates that the email field is filled and contains a valid email address -->
+        <input id="email" name="email" type="email" [(ngModel)]="email" required email autocomplete="email" #emailModel="ngModel" placeholder="you@example.com"
+          class="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 outline-none focus:border-[#ff6b00]" />
+
+        <!-- Display the email validation message when needed -->
+        @if (emailModel.invalid && (emailModel.touched || submitted)) {
+          <p class="mt-1 text-xs text-red-400">Enter a valid email address.</p>
+        }
+      </div>
+
+      <!-- Mobile number field -->
+      <div>
+        <label for="mobile" class="mb-2 block text-sm font-semibold">Mobile number</label>
+
+        <!-- Accepts exactly 10 digits and opens a numeric keyboard on supported devices -->
+        <input id="mobile" name="mobile" type="tel" [(ngModel)]="mobile" required pattern="[0-9]{10}" maxlength="10" inputmode="numeric" autocomplete="tel" #mobileModel="ngModel" placeholder="10-digit mobile number"
+          class="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 outline-none focus:border-[#ff6b00]" />
+
+        <!-- Display an error when the mobile number is invalid -->
+        @if (mobileModel.invalid && (mobileModel.touched || submitted)) {
+          <p class="mt-1 text-xs text-red-400">Enter a valid 10-digit mobile number.</p>
+        }
+      </div>
+
+      <!-- Password field -->
+      <div>
+        <label for="password" class="mb-2 block text-sm font-semibold">Password</label>
+
+        <!-- Requires a password of at least 8 characters -->
+        <input id="password" name="password" type="password" [(ngModel)]="password" required minlength="8" autocomplete="new-password" #passwordModel="ngModel" placeholder="At least 8 characters"
+          class="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 outline-none focus:border-[#ff6b00]" />
+
+        <!-- Display an error when the password is invalid -->
+        @if (passwordModel.invalid && (passwordModel.touched || submitted)) {
+          <p class="mt-1 text-xs text-red-400">Password must contain at least 8 characters.</p>
+        }
+      </div>
+
+      <!-- Confirm password field -->
+      <div>
+        <label for="confirmPassword" class="mb-2 block text-sm font-semibold">Confirm password</label>
+
+        <!-- Lets the user enter the password again for confirmation -->
+        <input id="confirmPassword" name="confirmPassword" type="password" [(ngModel)]="confirmPassword" required autocomplete="new-password" #confirmModel="ngModel" placeholder="Enter password again"
+          class="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 outline-none focus:border-[#ff6b00]" />
+
+        <!-- Display an error if the confirmation field is empty or invalid -->
+        @if (confirmModel.invalid && (confirmModel.touched || submitted)) {
+          <p class="mt-1 text-xs text-red-400">Please confirm your password.</p>
+        }
+      </div>
+
+      <!-- Display a registration error returned by the component -->
+      @if (errorMessage) {
+        <p role="alert" class="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+          {{ errorMessage }}
+        </p>
+      }
+
+      <!-- Submit button: triggers the form's ngSubmit event -->
+      <button type="submit" class="w-full rounded-xl bg-[#ff6b00] px-4 py-3 font-bold transition hover:bg-orange-500">
+        Create Account →
+      </button>
+    </form>
+
+    <!-- Link for users who already have an account -->
+    <p class="mt-6 text-center text-sm text-neutral-400">
+      Already registered?
+      <a routerLink="/login" class="font-semibold text-[#ff6b00] hover:text-orange-300">Sign in</a>
+    </p>
+
+  </section>
+</main>

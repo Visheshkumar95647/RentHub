@@ -1,0 +1,90 @@
+<!-- Main container to center the login form on the screen -->
+<main class="flex min-h-screen items-center justify-center bg-[#0a0a0a] px-5 py-10 text-white">
+
+  <!-- Login card -->
+  <section class="w-full max-w-md rounded-3xl border border-white/10 bg-[#141414] p-7 shadow-2xl sm:p-9">
+
+    <!-- RentHub logo that links back to the login page -->
+    <a routerLink="/login" class="text-2xl font-black">
+      Rent<span class="text-[#ff6b00]">Hub</span>
+    </a>
+
+    <!-- Welcome message and login page heading -->
+    <p class="mt-8 text-xs font-bold uppercase tracking-[0.2em] text-[#ff6b00]">
+      Welcome back
+    </p>
+
+    <h1 class="mt-2 text-3xl font-black">Sign in to RentHub</h1>
+
+    <p class="mt-2 text-sm leading-6 text-neutral-400">
+      Access your account and continue your rental journey.
+    </p>
+
+    <!-- Login form with Angular template-driven validation -->
+    <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)" novalidate class="mt-7 space-y-5">
+
+      <!-- Email input field -->
+      <div>
+        <label for="email" class="mb-2 block text-sm font-semibold">Email address</label>
+
+        <input
+          id="email"
+          name="email"
+          type="email"
+          [(ngModel)]="email"
+          required
+          email
+          autocomplete="email"
+          #emailModel="ngModel"
+          placeholder="you@example.com"
+          class="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 outline-none transition focus:border-[#ff6b00]"
+        />
+
+        <!-- Display an error when the email is invalid -->
+        @if (emailModel.invalid && (emailModel.touched || submitted)) {
+          <p class="mt-2 text-xs text-red-400">Enter a valid email address.</p>
+        }
+      </div>
+
+      <!-- Password input field -->
+      <div>
+        <label for="password" class="mb-2 block text-sm font-semibold">Password</label>
+
+        <input
+          id="password"
+          name="password"
+          type="password"
+          [(ngModel)]="password"
+          required
+          autocomplete="current-password"
+          #passwordModel="ngModel"
+          placeholder="Enter your password"
+          class="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 outline-none transition focus:border-[#ff6b00]"
+        />
+
+        <!-- Display an error when the password is empty -->
+        @if (passwordModel.invalid && (passwordModel.touched || submitted)) {
+          <p class="mt-2 text-xs text-red-400">Password is required.</p>
+        }
+      </div>
+
+      <!-- Display the login error message when one exists -->
+      @if (errorMessage) {
+        <p role="alert" class="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+          {{ errorMessage }}
+        </p>
+      }
+
+      <!-- Submit the login form -->
+      <button type="submit" class="w-full rounded-xl bg-[#ff6b00] px-4 py-3 font-bold transition hover:bg-orange-500">
+        Sign In →
+      </button>
+    </form>
+
+    <!-- Link to the registration page for new users -->
+    <p class="mt-6 text-center text-sm text-neutral-400">
+      Don't have an account?
+      <a routerLink="/register" class="font-semibold text-[#ff6b00] hover:text-orange-300">Create one</a>
+    </p>
+  </section>
+</main>

@@ -1,0 +1,192 @@
+<!-- Main container for the landlord query management page -->
+<main class="min-h-screen bg-[#090909] px-4 py-8 text-white sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-6xl">
+
+    <!-- Link to return to the user dashboard -->
+    <a routerLink="/user-dashboard"
+       class="text-sm text-neutral-400 transition hover:text-[#ff8733]">
+      ← Back to RentHub
+    </a>
+
+    <!-- Page heading and navigation to My Queries -->
+    <div class="mt-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-[#ff8733]">
+          Landlord workspace
+        </p>
+
+        <h1 class="mt-2 text-3xl font-black sm:text-4xl">
+          Handle Property Queries
+        </h1>
+
+        <p class="mt-2 text-sm text-neutral-400">
+          Manage questions for all your properties from one place.
+        </p>
+      </div>
+
+      <!-- Navigate to the landlord's My Queries page -->
+      <a routerLink="/my-queries"
+         class="w-fit rounded-full border border-white/10 px-5 py-3 text-sm font-semibold transition hover:border-[#ff8733]">
+        My Queries
+      </a>
+    </div>
+
+    <!-- Dashboard statistics showing query counts -->
+    <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+      <!-- Total number of queries -->
+      <div class="rounded-2xl border border-white/10 bg-[#111111] p-5">
+        <p class="text-sm text-neutral-400">All queries</p>
+        <p class="mt-2 text-3xl font-black">{{ totalQueries }}</p>
+      </div>
+
+      <!-- Number of queries awaiting a reply -->
+      <div class="rounded-2xl border border-yellow-500/20 bg-[#111111] p-5">
+        <p class="text-sm text-neutral-400">Pending</p>
+        <p class="mt-2 text-3xl font-black text-yellow-400">
+          {{ pendingCount }}
+        </p>
+      </div>
+
+      <!-- Number of queries that have been answered -->
+      <div class="rounded-2xl border border-green-500/20 bg-[#111111] p-5">
+        <p class="text-sm text-neutral-400">Answered</p>
+        <p class="mt-2 text-3xl font-black text-green-400">
+          {{ answeredCount }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Display success or error feedback after an action -->
+    @if (feedback) {
+      <p role="status"
+         class="mt-5 text-sm"
+         [class.text-red-400]="feedbackError"
+         [class.text-green-400]="!feedbackError">
+        {{ feedback }}
+      </p>
+    }
+
+    <!-- Search and filter controls for property queries -->
+    <div class="mt-8 flex flex-col gap-4 sm:flex-row">
+
+      <!-- Search by property, tenant, or question -->
+      <input
+        type="search"
+        [(ngModel)]="searchTerm"
+        placeholder="Search property, tenant or question..."
+        class="min-w-0 flex-1 rounded-xl border border-white/10 bg-[#111111] px-4 py-3 text-sm outline-none placeholder:text-neutral-500 focus:border-[#ff8733]"
+      />
+
+      <!-- Filter queries by pending, answered, or all statuses -->
+      <select
+        [ngModel]="selectedStatus"
+        (ngModelChange)="setStatus($event)"
+        class="rounded-xl border border-white/10 bg-[#111111] px-4 py-3 text-sm outline-none focus:border-[#ff8733]">
+        <option value="open">Pending queries</option>
+        <option value="answered">Answered queries</option>
+        <option value="all">All queries</option>
+      </select>
+    </div>
+
+    <!-- Display the filtered property queries -->
+    <div class="mt-6 space-y-4">
+
+      <!-- Loop through each query and use its ID as the tracking key -->
+      @for (query of filteredQueries; track query.id) {
+        <article class="rounded-2xl border border-white/10 bg-[#111111] p-5 sm:p-6">
+
+          <!-- Property details, tenant name, date, and query status -->
+          <div class="flex flex-col justify-between gap-3 sm:flex-row">
+            <div>
+              <h2 class="text-lg font-bold">{{ query.propertyTitle }}</h2>
+
+              <!-- Display the tenant who submitted the question -->
+              <p class="mt-1 text-sm text-neutral-400">
+                From {{ query.tenantName }}
+              </p>
+
+              <!-- Format the query creation date -->
+              <p class="mt-1 text-xs text-neutral-500">
+                {{ query.createdAt | date:'medium' }}
+              </p>
+            </div>
+
+            <!-- Show a status badge based on the query status -->
+            <span
+              class="h-fit w-fit rounded-full px-3 py-1.5 text-xs font-bold"
+              [class.bg-yellow-500/10]="query.status === 'open'"
+              [class.text-yellow-400]="query.status === 'open'"
+              [class.bg-green-500/10]="query.status === 'answered'"
+              [class.text-green-400]="query.status === 'answered'">
+              {{ query.status === 'open' ? 'Pending' : 'Answered' }}
+            </span>
+          </div>
+
+          <!-- Display the original question submitted by the tenant -->
+          <div class="mt-5 rounded-xl border border-white/[0.06] bg-[#090909] p-4">
+            <p class="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              Question
+            </p>
+
+            <p class="mt-2 whitespace-pre-wrap text-sm leading-6 text-neutral-200">
+              {{ query.message }}
+            </p>
+          </div>
+
+          <!-- Show the landlord's reply if the query is already answered -->
+          @if (query.status === 'answered') {
+            <div class="mt-3 rounded-xl border border-green-500/10 bg-green-500/[0.04] p-4">
+              <p class="text-xs font-semibold uppercase tracking-wide text-green-400">
+                Your reply
+              </p>
+
+              <p class="mt-2 whitespace-pre-wrap text-sm leading-6 text-neutral-200">
+                {{ query.reply }}
+              </p>
+            </div>
+          } @else {
+
+            <!-- Reply form displayed only for pending queries -->
+            <form class="mt-4 space-y-3" (ngSubmit)="submitReply(query)">
+
+              <!-- Label associated with the reply textarea -->
+              <label [for]="'reply-' + query.id"
+                     class="block text-sm font-semibold text-neutral-300">
+                Write a reply
+              </label>
+
+              <!-- Capture the landlord's response for this specific query -->
+              <textarea
+                [id]="'reply-' + query.id"
+                [name]="'reply-' + query.id"
+                [(ngModel)]="replies[query.id]"
+                required
+                rows="3"
+                placeholder="Write your answer to the tenant..."
+                class="w-full resize-y rounded-xl border border-white/10 bg-[#090909] px-4 py-3 text-sm outline-none placeholder:text-neutral-600 focus:border-[#ff8733]">
+              </textarea>
+
+              <!-- Submit the response to the tenant -->
+              <button
+                type="submit"
+                class="rounded-full bg-[#ff6b00] px-5 py-3 text-sm font-bold transition hover:bg-[#ff8126]">
+                Send Reply →
+              </button>
+            </form>
+          }
+        </article>
+      } @empty {
+
+        <!-- Empty state shown when no queries match the search or filter -->
+        <div class="rounded-2xl border border-white/10 bg-[#111111] px-5 py-14 text-center">
+          <p class="text-lg font-bold">No queries found</p>
+
+          <p class="mt-2 text-sm text-neutral-400">
+            Try another filter or search term. New questions about your properties will appear here.
+          </p>
+        </div>
+      }
+    </div>
+  </div>
+</main>

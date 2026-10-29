@@ -1,0 +1,773 @@
+
+<!-- Main container for the property details page -->
+<div class="min-h-screen bg-[#0a0a0a] text-white">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+
+    <!-- Navigation buttons -->
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+
+      <!-- Return to the previous dashboard -->
+      <button
+        type="button"
+        (click)="goBack()"
+        class="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-gray-300 transition hover:border-orange-500/40 hover:text-white"
+      >
+        <span aria-hidden="true">←</span>
+        Back to Dashboard
+      </button>
+
+      <div class="flex flex-wrap gap-3">
+
+        <!-- Show the logout button only to logged-in users -->
+        <button
+          *ngIf="isLoggedIn"
+          type="button"
+          (click)="logout()"
+          class="rounded-xl border border-white/10 px-4 py-2.5 text-sm text-gray-300 transition hover:bg-white/10"
+        >
+          Logout
+        </button>
+
+        <!-- Allow users to save or remove a property from favourites -->
+        <button
+          *ngIf="property && !isOwner"
+          type="button"
+          (click)="toggleFavourite()"
+          class="rounded-xl border px-4 py-2.5 text-sm font-semibold transition"
+          [class.border-orange-500]="isFavourite"
+          [class.bg-orange-500]="isFavourite"
+          [class.text-white]="isFavourite"
+          [class.border-white/10]="!isFavourite"
+          [class.bg-white/5]="!isFavourite"
+          [class.text-gray-200]="!isFavourite"
+        >
+          {{ isFavourite ? '♥ Saved to favourites' : '♡ Add to favourites' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Display general success or error messages -->
+    <div
+      *ngIf="feedback"
+      class="mb-6 rounded-xl border px-4 py-3 text-sm"
+      [class.border-red-500/30]="feedbackError"
+      [class.bg-red-500/10]="feedbackError"
+      [class.text-red-300]="feedbackError"
+      [class.border-green-500/30]="!feedbackError"
+      [class.bg-green-500/10]="!feedbackError"
+      [class.text-green-300]="!feedbackError"
+    >
+      {{ feedback }}
+    </div>
+
+    <!-- Display a message when the property does not exist -->
+    <div
+      *ngIf="!property"
+      class="rounded-3xl border border-white/10 bg-[#141414] px-6 py-20 text-center"
+    >
+      <div class="mb-4 text-5xl">⌂</div>
+      <h1 class="text-2xl font-bold">Property not found</h1>
+      <p class="mt-3 text-gray-400">
+        This listing may have been removed or the link may be incorrect.
+      </p>
+
+      <!-- Navigate to the home page to browse other properties -->
+      <a
+        routerLink="/"
+        class="mt-6 inline-flex rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white transition hover:bg-orange-600"
+      >
+        Browse properties
+      </a>
+    </div>
+
+    <!-- Display property information only when a property exists -->
+    <ng-container *ngIf="property as p">
+
+      <!-- Property title, type, location, rent, and basic details -->
+      <section class="mb-7">
+
+        <!-- Show property category and special preferences -->
+        <div class="mb-3 flex flex-wrap items-center gap-2">
+          <span
+            class="rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-400"
+          >
+            {{ p.propertyType || 'Rental property' }}
+          </span>
+
+          <!-- Show whether the accommodation is shared -->
+          <span
+            *ngIf="p.isShared"
+            class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-300"
+          >
+            Shared accommodation
+          </span>
+
+          <!-- Show the vegetarian preference when applicable -->
+          <span
+            *ngIf="p.vegetarianPreference"
+            class="rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs text-green-400"
+          >
+            Vegetarian preference
+          </span>
+        </div>
+
+        <!-- Display the property title -->
+        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+          {{ p.title }}
+        </h1>
+
+        <!-- Display the property location and city -->
+        <p class="mt-3 flex items-center gap-2 text-gray-400">
+          <span aria-hidden="true">📍</span>
+          {{ p.location }}<span *ngIf="p.city">, {{ p.city }}</span>
+        </p>
+
+        <!-- Display rent and property dimensions -->
+        <div class="mt-5 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p class="text-sm text-gray-500">
+              {{ p.priceMode || 'Per Month' }}
+            </p>
+
+            <!-- Format rent using the Indian currency symbol -->
+            <p class="text-3xl font-bold text-orange-400">
+              {{ p.monthlyRent | currency: 'INR' : 'symbol' : '1.0-0' }}
+              <span class="text-sm font-normal text-gray-500">/ month</span>
+            </p>
+
+            <!-- Show whether the rent is negotiable -->
+            <p *ngIf="p.negotiable" class="mt-1 text-sm text-green-400">
+              Rent is negotiable
+            </p>
+          </div>
+
+          <!-- Display the number of bedrooms, bathrooms, and total area -->
+          <div class="flex flex-wrap gap-2 text-sm text-gray-300">
+            <span class="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+              {{ p.bedrooms }} bedrooms
+            </span>
+            <span class="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+              {{ p.bathrooms }} bathrooms
+            </span>
+            <span class="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+              {{ p.areaSqFt }} sq ft
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Display all property images -->
+      <section class="mb-10">
+        <div
+          *ngIf="p.images?.length; else noImages"
+          class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          <!-- Loop through the images and highlight the first image -->
+          <div
+            *ngFor="let image of p.images; let i = index"
+            class="overflow-hidden rounded-2xl border border-white/10 bg-[#141414]"
+            [class.sm:col-span-2]="i === 0 && p.images.length > 1"
+            [class.lg:col-span-2]="i === 0 && p.images.length > 2"
+          >
+            <img
+              [src]="image"
+              [alt]="p.title + ' property image ' + (i + 1)"
+              class="h-64 w-full object-cover transition duration-500 hover:scale-[1.02] sm:h-72"
+              [class.lg:h-96]="i === 0"
+            />
+          </div>
+        </div>
+
+        <!-- Fallback when no property images are available -->
+        <ng-template #noImages>
+          <div
+            class="flex h-64 items-center justify-center rounded-2xl border border-white/10 bg-[#141414] text-gray-500"
+          >
+            No property images available
+          </div>
+        </ng-template>
+      </section>
+
+      <!-- Main content area and sidebar layout -->
+      <div class="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
+        <main class="space-y-8 lg:col-span-2">
+
+          <!-- Property overview and basic specifications -->
+          <section class="rounded-2xl border border-white/10 bg-[#141414] p-6 sm:p-8">
+            <h2 class="text-xl font-bold">Property overview</h2>
+
+            <!-- Display the full property description -->
+            <p class="mt-4 whitespace-pre-line leading-7 text-gray-400">
+              {{ p.description || 'No description has been provided for this property.' }}
+            </p>
+
+            <!-- Display key property specifications -->
+            <div class="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <div class="rounded-xl border border-white/5 bg-white/[0.03] p-4">
+                <p class="text-sm text-gray-500">Bedrooms</p>
+                <p class="mt-2 text-lg font-semibold">{{ p.bedrooms }}</p>
+              </div>
+
+              <div class="rounded-xl border border-white/5 bg-white/[0.03] p-4">
+                <p class="text-sm text-gray-500">Bathrooms</p>
+                <p class="mt-2 text-lg font-semibold">{{ p.bathrooms }}</p>
+              </div>
+
+              <div class="rounded-xl border border-white/5 bg-white/[0.03] p-4">
+                <p class="text-sm text-gray-500">Area</p>
+                <p class="mt-2 text-lg font-semibold">{{ p.areaSqFt }} sq ft</p>
+              </div>
+
+              <div class="rounded-xl border border-white/5 bg-white/[0.03] p-4">
+                <p class="text-sm text-gray-500">Furnishing</p>
+                <p class="mt-2 text-lg font-semibold">{{ p.furnished }}</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Rental information and terms -->
+          <section class="rounded-2xl border border-white/10 bg-[#141414] p-6 sm:p-8">
+            <h2 class="text-xl font-bold">Rental information</h2>
+
+            <div class="mt-5 divide-y divide-white/5">
+
+              <!-- Monthly rent -->
+              <div class="flex items-center justify-between gap-4 py-4">
+                <span class="text-gray-400">Monthly rent</span>
+                <span class="font-semibold">
+                  {{ p.monthlyRent | currency: 'INR' : 'symbol' : '1.0-0' }}
+                </span>
+              </div>
+
+              <!-- Furnishing status -->
+              <div class="flex items-center justify-between gap-4 py-4">
+                <span class="text-gray-400">Furnishing</span>
+                <span class="font-semibold">{{ p.furnished }}</span>
+              </div>
+
+              <!-- Lease duration -->
+              <div class="flex items-center justify-between gap-4 py-4">
+                <span class="text-gray-400">Lease duration</span>
+                <span class="font-semibold">{{ p.leaseType || 'Not specified' }}</span>
+              </div>
+
+              <!-- Indicate whether the rent can be negotiated -->
+              <div class="flex items-center justify-between gap-4 py-4">
+                <span class="text-gray-400">Rent negotiable</span>
+                <span class="font-semibold">{{ p.negotiable ? 'Yes' : 'No' }}</span>
+              </div>
+
+              <!-- Show the vegetarian preference -->
+              <div class="flex items-center justify-between gap-4 py-4">
+                <span class="text-gray-400">Vegetarian preference</span>
+                <span class="font-semibold">
+                  {{ p.vegetarianPreference ? 'Preferred' : 'Not specified' }}
+                </span>
+              </div>
+
+              <!-- Show the building name only when available -->
+              <div *ngIf="p.buildingName" class="flex items-center justify-between gap-4 py-4">
+                <span class="text-gray-400">Building</span>
+                <span class="text-right font-semibold">{{ p.buildingName }}</span>
+              </div>
+
+              <!-- Show the street address only when available -->
+              <div *ngIf="p.streetAddress" class="flex items-center justify-between gap-4 py-4">
+                <span class="text-gray-400">Street address</span>
+                <span class="text-right font-semibold">{{ p.streetAddress }}</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Property amenities and facilities -->
+          <section class="rounded-2xl border border-white/10 bg-[#141414] p-6 sm:p-8">
+            <h2 class="text-xl font-bold">Amenities and facilities</h2>
+
+            <!-- Display each available amenity -->
+            <div
+              *ngIf="p.amenities?.length; else noAmenities"
+              class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2"
+            >
+              <div
+                *ngFor="let amenity of p.amenities"
+                class="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.03] p-3"
+              >
+                <span class="text-orange-400" aria-hidden="true">✓</span>
+                <span class="text-gray-300">{{ amenity }}</span>
+              </div>
+            </div>
+
+            <!-- Display a message when no amenities are listed -->
+            <ng-template #noAmenities>
+              <p class="mt-4 text-sm text-gray-500">
+                No amenities have been listed.
+              </p>
+            </ng-template>
+          </section>
+
+          <!-- FEATURE 1: Public comments and replies -->
+          <section
+            id="public-discussion"
+            class="rounded-2xl border border-white/10 bg-[#141414] p-6 sm:p-8"
+          >
+            <!-- Discussion heading and total comment count -->
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-widest text-orange-400">
+                  Public discussion
+                </p>
+                <h2 class="mt-2 text-xl font-bold">Comments and replies</h2>
+                <p class="mt-2 text-sm leading-6 text-gray-400">
+                  Comments and replies are public. The property owner and signed-in users can
+                  participate in the discussion.
+                </p>
+              </div>
+
+              <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-gray-300">
+                {{ comments.length }} comments
+              </span>
+            </div>
+
+            <!-- Show the comment form to logged-in users -->
+            <div *ngIf="isLoggedIn; else loginToComment" class="mt-6">
+              <label for="public-comment" class="mb-2 block text-sm font-medium text-gray-300">
+                Add a public comment
+              </label>
+
+              <!-- Bind the comment text to the component property -->
+              <textarea
+                id="public-comment"
+                name="commentMessage"
+                [(ngModel)]="commentMessage"
+                rows="3"
+                maxlength="2000"
+                placeholder="Ask a question or share your thoughts about this property..."
+                class="w-full resize-y rounded-xl border border-white/10 bg-[#0a0a0a] p-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-orange-500"
+              ></textarea>
+
+              <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+                <!-- Show the name of the user writing the comment -->
+                <span class="text-xs text-gray-500">
+                  Posting as {{ currentUser?.fullName }}
+                </span>
+
+                <!-- Submit the comment and prevent empty submissions -->
+                <button
+                  type="button"
+                  (click)="submitComment()"
+                  [disabled]="isSubmitting || !commentMessage.trim()"
+                  class="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {{ isSubmitting ? 'Posting...' : 'Post comment' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Ask visitors to log in before commenting -->
+            <ng-template #loginToComment>
+              <div class="mt-6 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <p class="text-sm text-gray-400">
+                  Log in to comment or reply to the discussion.
+                </p>
+                <a
+                  routerLink="/login"
+                  class="mt-3 inline-flex font-semibold text-orange-400 hover:text-orange-300"
+                >
+                  Log in to participate →
+                </a>
+              </div>
+            </ng-template>
+
+            <!-- Empty state when no top-level comments exist -->
+            <div
+              *ngIf="topLevelComments.length === 0"
+              class="mt-6 rounded-xl border border-dashed border-white/10 p-8 text-center"
+            >
+              <p class="font-medium text-gray-300">Start the conversation</p>
+              <p class="mt-2 text-sm text-gray-500">No public comments yet.</p>
+            </div>
+
+            <!-- Display all top-level comments -->
+            <div *ngIf="topLevelComments.length > 0" class="mt-6 space-y-5">
+              <article
+                *ngFor="let comment of topLevelComments"
+                class="rounded-xl border border-white/10 bg-[#0d0d0d] p-4 sm:p-5"
+              >
+                <!-- Comment author and reply action -->
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex min-w-0 items-center gap-3">
+
+                    <!-- Display the first letter of the comment author's name -->
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-500/15 font-bold text-orange-400">
+                      {{ comment.userName.charAt(0).toUpperCase() }}
+                    </div>
+
+                    <div class="min-w-0">
+                      <p class="truncate font-semibold text-white">
+                        {{ comment.userName }}
+
+                        <!-- Mark comments written by the property owner -->
+                        <span
+                          *ngIf="comment.userId === p.landlordId"
+                          class="ml-1 rounded-full bg-orange-500/10 px-2 py-1 text-[10px] font-semibold text-orange-400"
+                        >
+                          OWNER
+                        </span>
+                      </p>
+
+                      <!-- Display when the comment was created -->
+                      <p class="mt-1 text-xs text-gray-500">
+                        {{ comment.createdAt | date: 'medium' }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Open the reply form for this comment -->
+                  <button
+                    *ngIf="isLoggedIn"
+                    type="button"
+                    (click)="startReply(comment.id)"
+                    class="shrink-0 text-sm font-medium text-orange-400 hover:text-orange-300"
+                  >
+                    Reply
+                  </button>
+                </div>
+
+                <!-- Display the comment message -->
+                <p class="mt-4 whitespace-pre-line break-words text-sm leading-6 text-gray-300">
+                  {{ comment.message }}
+                </p>
+
+                <!-- Display replies associated with this comment -->
+                <div
+                  *ngIf="getReplies(comment.id).length > 0"
+                  class="mt-5 space-y-3 border-l-2 border-orange-500/30 pl-4 sm:pl-5"
+                >
+                  <div
+                    *ngFor="let reply of getReplies(comment.id)"
+                    class="rounded-xl bg-white/[0.03] p-4"
+                  >
+                    <!-- Reply author, owner badge, and timestamp -->
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <span class="text-sm font-semibold text-gray-200">
+                          {{ reply.userName }}
+                        </span>
+
+                        <!-- Mark replies written by the property owner -->
+                        <span
+                          *ngIf="reply.userId === p.landlordId"
+                          class="ml-2 rounded-full bg-orange-500/10 px-2 py-1 text-[10px] font-semibold text-orange-400"
+                        >
+                          OWNER
+                        </span>
+                      </div>
+
+                      <span class="text-xs text-gray-500">
+                        {{ reply.createdAt | date: 'medium' }}
+                      </span>
+                    </div>
+
+                    <!-- Display the reply message -->
+                    <p class="mt-3 whitespace-pre-line break-words text-sm leading-6 text-gray-400">
+                      {{ reply.message }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Display the reply form for the selected comment -->
+                <div
+                  *ngIf="replyToId === comment.id"
+                  class="mt-4 rounded-xl border border-orange-500/20 bg-orange-500/5 p-4"
+                >
+                  <label
+                    [for]="'reply-' + comment.id"
+                    class="mb-2 block text-sm font-medium text-gray-300"
+                  >
+                    Write a public reply
+                  </label>
+
+                  <!-- Bind the reply text to the component property -->
+                  <textarea
+                    [id]="'reply-' + comment.id"
+                    name="replyMessage"
+                    [(ngModel)]="replyMessage"
+                    rows="2"
+                    maxlength="2000"
+                    placeholder="Write your reply..."
+                    class="w-full rounded-xl border border-white/10 bg-[#0a0a0a] p-3 text-sm text-white outline-none focus:border-orange-500"
+                  ></textarea>
+
+                  <!-- Reply form action buttons -->
+                  <div class="mt-3 flex justify-end gap-3">
+
+                    <!-- Close the reply form without submitting -->
+                    <button
+                      type="button"
+                      (click)="cancelReply()"
+                      class="rounded-lg px-3 py-2 text-sm text-gray-400 hover:text-white"
+                    >
+                      Cancel
+                    </button>
+
+                    <!-- Submit the reply when the message is not empty -->
+                    <button
+                      type="button"
+                      (click)="submitReply(comment)"
+                      [disabled]="!replyMessage.trim()"
+                      class="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+                    >
+                      Post reply
+                    </button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <!-- FEATURE 2: Private messages sent to the property owner -->
+          <section
+            id="private-queries"
+            class="rounded-2xl border border-orange-500/20 bg-[#141414] p-6 sm:p-8"
+          >
+            <!-- Private query heading and description -->
+            <div class="flex items-start gap-4">
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 text-xl text-orange-400">
+                ✉
+              </div>
+
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-widest text-orange-400">
+                  Private communication
+                </p>
+
+                <h2 class="mt-2 text-xl font-bold">Private property query</h2>
+
+                <p class="mt-2 text-sm leading-6 text-gray-400">
+                  Have a question about this property? Send a private message to the property owner
+                  about availability, rent, viewing times, or rental terms.
+                </p>
+              </div>
+            </div>
+
+            <!-- Display success or error feedback for private queries -->
+            <div
+              *ngIf="queryFeedback"
+              class="mt-5 rounded-xl border px-4 py-3 text-sm"
+              [class.border-red-500/30]="queryFeedbackError"
+              [class.bg-red-500/10]="queryFeedbackError"
+              [class.text-red-300]="queryFeedbackError"
+              [class.border-green-500/30]="!queryFeedbackError"
+              [class.bg-green-500/10]="!queryFeedbackError"
+              [class.text-green-300]="!queryFeedbackError"
+            >
+              {{ queryFeedback }}
+            </div>
+
+            <!-- Show the private query form to eligible users -->
+            <div *ngIf="canSendQuery" class="mt-6">
+              <label for="private-query" class="mb-2 block text-sm font-medium text-gray-300">
+                Your message
+              </label>
+
+              <!-- Enter the message to send privately to the landlord -->
+              <textarea
+                id="private-query"
+                name="queryMessage"
+                [(ngModel)]="queryMessage"
+                rows="4"
+                maxlength="3000"
+                placeholder="Ask about availability, rent, viewing times, or rental terms..."
+                class="w-full resize-y rounded-xl border border-white/10 bg-[#0a0a0a] p-4 text-sm text-white outline-none placeholder:text-gray-600 focus:border-orange-500"
+              ></textarea>
+
+              <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+                <p class="text-xs text-gray-500">
+                  Your query is associated with this property.
+                </p>
+
+                <!-- Send the query and disable the button when empty or sending -->
+                <button
+                  type="button"
+                  (click)="sendQuery()"
+                  [disabled]="isSendingQuery || !queryMessage.trim()"
+                  class="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {{ isSendingQuery ? 'Sending...' : 'Send private query' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Ask visitors to log in before sending a private query -->
+            <div
+              *ngIf="!isLoggedIn"
+              class="mt-6 rounded-xl border border-white/10 bg-white/[0.03] p-4"
+            >
+              <p class="text-sm text-gray-400">
+                Log in with a tenant account to send a private query about this property.
+              </p>
+
+              <a
+                routerLink="/login"
+                class="mt-3 inline-flex font-semibold text-orange-400 hover:text-orange-300"
+              >
+                Log in to send a query →
+              </a>
+            </div>
+
+            <!-- Explain why a logged-in user cannot submit a query -->
+            <div
+              *ngIf="isLoggedIn && !canSendQuery"
+              class="mt-6 rounded-xl border border-white/10 bg-white/[0.03] p-4"
+            >
+              <p class="text-sm text-gray-400">
+                Private property queries can only be submitted by tenant accounts for properties
+                they do not own.
+              </p>
+            </div>
+          </section>
+        </main>
+
+        <!-- Sidebar containing landlord controls and contact information -->
+        <aside class="space-y-6 lg:sticky lg:top-6">
+
+          <!-- Show management controls when the logged-in user owns this property -->
+          <section *ngIf="isOwner" class="rounded-2xl border border-orange-500/20 bg-[#141414] p-6">
+            <div class="flex items-center gap-3">
+              <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/10 text-xl text-orange-400">
+                ⌂
+              </div>
+
+              <div>
+                <h2 class="font-bold">Your listing</h2>
+                <p class="mt-1 text-sm text-gray-500">Landlord controls</p>
+              </div>
+            </div>
+
+            <!-- Explain the available property management actions -->
+            <p class="mt-5 text-sm leading-6 text-gray-400">
+              Manage this property and respond to tenant queries. Public comments remain visible in
+              the discussion section.
+            </p>
+
+            <!-- Navigate to the property editing form -->
+            <a
+              [routerLink]="['/property-form', p.id]"
+              class="mt-5 flex w-full items-center justify-center rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-orange-600"
+            >
+              Edit property
+            </a>
+
+            <!-- Navigate to the landlord's complete listings -->
+            <a
+              routerLink="/my-listings"
+              class="mt-3 flex w-full items-center justify-center rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-gray-200 transition hover:bg-white/5"
+            >
+              Manage my listings
+            </a>
+
+            <!-- Delete the property owned by the current user -->
+            <button
+              type="button"
+              (click)="deleteOwnProperty()"
+              [disabled]="isDeleting"
+              class="mt-3 w-full rounded-xl border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
+            >
+              {{ isDeleting ? 'Deleting...' : 'Delete property' }}
+            </button>
+          </section>
+
+          <!-- Show the landlord's public contact details to other visitors -->
+          <section *ngIf="!isOwner" class="rounded-2xl border border-white/10 bg-[#141414] p-6">
+            <p class="text-xs font-semibold uppercase tracking-widest text-orange-400">
+              Listed by
+            </p>
+
+            <div class="mt-4 flex items-center gap-3">
+
+              <!-- Display the first letter of the landlord's name -->
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-500/15 text-lg font-bold text-orange-400">
+                {{ ownerContact?.fullName?.charAt(0)?.toUpperCase() || 'L' }}
+              </div>
+
+              <div class="min-w-0">
+                <!-- Display the landlord's name -->
+                <h2 class="truncate font-bold">
+                  {{ ownerContact?.fullName || p.landlordName || 'Property owner' }}
+                </h2>
+                <p class="mt-1 text-sm text-gray-500">Landlord</p>
+              </div>
+            </div>
+
+            <!-- Display the landlord's email and mobile number -->
+            <div class="mt-5 space-y-3">
+
+              <!-- Landlord email address -->
+              <div class="rounded-xl border border-white/5 bg-white/[0.03] p-3">
+                <p class="text-xs text-gray-500">Email</p>
+                <p class="mt-1 break-all text-sm text-gray-300">
+                  {{ ownerEmail || 'Not provided' }}
+                </p>
+              </div>
+
+              <!-- Landlord mobile number -->
+              <div class="rounded-xl border border-white/5 bg-white/[0.03] p-3">
+                <p class="text-xs text-gray-500">Mobile</p>
+                <p class="mt-1 text-sm text-gray-300">
+                  {{ ownerMobile || 'Not provided' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Open the visitor's default email application -->
+            <a
+              *ngIf="ownerEmail"
+              [href]="'mailto:' + ownerEmail"
+              class="mt-4 flex w-full items-center justify-center rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-gray-200 transition hover:bg-white/5"
+            >
+              Email landlord
+            </a>
+
+            <!-- Allow visitors to call the landlord from supported devices -->
+            <a
+              *ngIf="ownerMobile"
+              [href]="'tel:' + ownerMobile"
+              class="mt-3 flex w-full items-center justify-center rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-gray-200 transition hover:bg-white/5"
+            >
+              Call landlord
+            </a>
+
+            <!-- Direct visitors to the private query form for private communication -->
+            <p class="mt-4 text-xs leading-5 text-gray-500">
+              For a private conversation, use the private query form below.
+            </p>
+          </section>
+
+          <!-- Display property listing metadata -->
+          <section class="rounded-2xl border border-white/10 bg-[#141414] p-6">
+            <h2 class="font-bold">Listing information</h2>
+
+            <div class="mt-4 space-y-4 text-sm">
+
+              <!-- Display the date the property was listed -->
+              <div class="flex items-start justify-between gap-4">
+                <span class="text-gray-500">Listed on</span>
+                <span class="text-right text-gray-300">
+                  {{ p.createdAt | date: 'mediumDate' }}
+                </span>
+              </div>
+
+              <!-- Display the total number of comments -->
+              <div class="flex items-start justify-between gap-4">
+                <span class="text-gray-500">Discussion</span>
+                <span class="text-right text-gray-300">
+                  {{ comments.length }} comments
+                </span>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </ng-container>
+  </div>
+</div>

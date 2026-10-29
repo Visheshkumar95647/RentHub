@@ -1,0 +1,229 @@
+
+<!-- Main container for the profile page -->
+<div class="min-h-screen bg-[#0a0a0a] text-white">
+
+  <!-- Header with logo, dashboard link, and logout button -->
+  <header class="border-b border-white/10 bg-[#111111]">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+
+      <!-- RentHub logo links to the user dashboard -->
+      <a routerLink="/user-dashboard" class="text-2xl font-bold tracking-tight">
+        Rent<span class="text-[#ff6b00]">Hub</span>
+      </a>
+
+      <!-- Navigation actions -->
+      <div class="flex items-center gap-3">
+
+        <!-- Show the appropriate dashboard based on the user's role -->
+        <a
+          [routerLink]="user?.role === 'admin' ? '/admin-dashboard' : '/user-dashboard'"
+          class="rounded-lg px-3 py-2 text-sm text-gray-300 hover:bg-white/10"
+        >
+          Dashboard
+        </a>
+
+        <!-- Log out the current user -->
+        <button
+          type="button"
+          (click)="logout()"
+          class="rounded-lg border border-white/10 px-3 py-2 text-sm hover:border-[#ff6b00] hover:text-[#ff6b00]"
+        >
+          Log out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main profile page content -->
+  <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+
+    <!-- Link back to the appropriate dashboard -->
+    <a
+      [routerLink]="user?.role === 'admin' ? '/admin-dashboard' : '/user-dashboard'"
+      class="mb-6 inline-flex items-center gap-2 text-sm text-gray-400 hover:text-[#ff6b00]"
+    >
+      ← Back to dashboard
+    </a>
+
+    <!-- Page heading and description -->
+    <div class="mb-8">
+      <p class="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-[#ff6b00]">
+        Account settings
+      </p>
+      <h1 class="text-3xl font-bold sm:text-4xl">My Profile</h1>
+      <p class="mt-2 text-gray-400">
+        Manage your personal information and account details.
+      </p>
+    </div>
+
+    <!-- Two-column layout for profile summary and editable information -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+      <!-- Left section: profile summary -->
+      <section class="rounded-2xl border border-white/10 bg-[#141414] p-6 lg:col-span-1">
+
+        <!-- Display the first letter of the user's name as an avatar -->
+        <div class="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-[#ff6b00]/30 bg-[#ff6b00]/10 text-4xl font-bold text-[#ff6b00]">
+          {{ fullName.charAt(0).toUpperCase() || 'U' }}
+        </div>
+
+        <!-- Display the user's name -->
+        <h2 class="mt-4 break-words text-center text-xl font-semibold">
+          {{ fullName || 'Your Name' }}
+        </h2>
+
+        <!-- Display the user's email address -->
+        <p class="mt-1 break-all text-center text-sm text-gray-400">
+          {{ email }}
+        </p>
+
+        <!-- Display the user's role -->
+        <div class="mt-5 flex justify-center">
+          <span class="rounded-full border border-[#ff6b00]/30 bg-[#ff6b00]/10 px-4 py-1.5 text-sm font-medium text-[#ff6b00]">
+            {{ roleLabel }}
+          </span>
+        </div>
+
+        <!-- Show landlord promotion status for regular users -->
+        @if (user?.role === 'user') {
+          <div class="mt-6 rounded-xl border border-white/10 bg-black/20 p-4">
+            <p class="text-sm text-gray-400">Landlord access</p>
+            <p class="mt-1 font-medium">{{ promotionStatus }}</p>
+          </div>
+        }
+
+        <!-- Show the number of saved properties for non-admin users -->
+        @if (user?.role !== 'admin') {
+          <div class="mt-4 rounded-xl border border-white/10 bg-black/20 p-4">
+            <p class="text-sm text-gray-400">Saved properties</p>
+            <p class="mt-1 text-2xl font-bold">{{ favouriteCount }}</p>
+          </div>
+        }
+      </section>
+
+      <!-- Right section: form for editing personal information -->
+      <section class="rounded-2xl border border-white/10 bg-[#141414] p-6 sm:p-8 lg:col-span-2">
+
+        <h2 class="text-xl font-semibold">Personal information</h2>
+        <p class="mt-1 text-sm text-gray-400">
+          Update the details associated with your account.
+        </p>
+
+        <!-- Submit the form by calling saveProfile() -->
+        <form
+          #profileForm="ngForm"
+          (ngSubmit)="saveProfile()"
+          class="mt-6 space-y-5"
+        >
+
+          <!-- Full name input field -->
+          <div>
+            <label
+              for="fullName"
+              class="mb-2 block text-sm font-medium text-gray-300"
+            >
+              Full name
+            </label>
+            <input
+              id="fullName"
+              name="fullName"
+              type="text"
+              [(ngModel)]="fullName"
+              required
+              minlength="2"
+              maxlength="100"
+              autocomplete="name"
+              class="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 outline-none transition focus:border-[#ff6b00]"
+              placeholder="Enter your full name"
+            />
+          </div>
+
+          <!-- Email input field with email validation -->
+          <div>
+            <label
+              for="email"
+              class="mb-2 block text-sm font-medium text-gray-300"
+            >
+              Email address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              [(ngModel)]="email"
+              required
+              email
+              maxlength="254"
+              autocomplete="email"
+              class="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 outline-none transition focus:border-[#ff6b00]"
+              placeholder="you@example.com"
+            />
+            <p class="mt-2 text-xs text-gray-500">
+              Your email must remain unique across accounts.
+            </p>
+          </div>
+
+          <!-- Mobile number input field -->
+          <div>
+            <label
+              for="mobile"
+              class="mb-2 block text-sm font-medium text-gray-300"
+            >
+              Mobile number
+            </label>
+            <input
+              id="mobile"
+              name="mobile"
+              type="tel"
+              [(ngModel)]="mobile"
+              required
+              minlength="7"
+              maxlength="20"
+              autocomplete="tel"
+              class="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 outline-none transition focus:border-[#ff6b00]"
+              placeholder="Enter your mobile number"
+            />
+          </div>
+
+          <!-- Display success or error feedback after saving -->
+          @if (feedback) {
+            <div
+              role="status"
+              class="rounded-xl border p-4 text-sm"
+              [class.border-red-500/30]="feedbackError"
+              [class.bg-red-500/10]="feedbackError"
+              [class.text-red-300]="feedbackError"
+              [class.border-green-500/30]="!feedbackError"
+              [class.bg-green-500/10]="!feedbackError"
+              [class.text-green-300]="!feedbackError"
+            >
+              {{ feedback }}
+            </div>
+          }
+
+          <!-- Form action buttons -->
+          <div class="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+
+            <!-- Cancel editing and navigate to the user dashboard -->
+            <button
+              type="button"
+              (click)="router.navigate(['/user-dashboard'])"
+              class="rounded-xl border border-white/10 px-5 py-3 text-sm font-medium hover:bg-white/5"
+            >
+              Cancel
+            </button>
+
+            <!-- Save changes; disable while saving or when the form is invalid -->
+            <button
+              type="submit"
+              [disabled]="isSaving || profileForm.invalid"
+              class="rounded-xl bg-[#ff6b00] px-6 py-3 text-sm font-semibold text-black transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {{ isSaving ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </main>
+</div>

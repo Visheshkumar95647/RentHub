@@ -1,0 +1,146 @@
+
+<article
+  class="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#141414] transition duration-300 hover:-translate-y-1 hover:border-[#ff6b00]/50">
+
+  <!-- Property image -->
+  <div class="relative h-56 shrink-0 overflow-hidden bg-neutral-900">
+    @if (property.images.length > 0 && property.images[0]) {
+      <img
+        [src]="property.images[0]"
+        [alt]="property.title"
+        loading="lazy"
+        class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+    } @else {
+      <div class="flex h-full items-center justify-center text-neutral-500">
+        <span class="text-4xl">🏠</span>
+        <span class="sr-only">No property image available</span>
+      </div>
+    }
+
+    <!-- Card label -->
+    @if (mode === 'featured') {
+      <span class="absolute left-4 top-4 rounded-full bg-black/75 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
+        Featured
+      </span>
+    } @else if (mode === 'favourites') {
+      <span class="absolute left-4 top-4 rounded-full bg-black/75 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
+        Saved Property
+      </span>
+    } @else if (mode === 'landlord') {
+      <span class="absolute left-4 top-4 rounded-full bg-black/75 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
+        {{ property.furnished }}
+      </span>
+    }
+
+    <!-- Favourite action -->
+    @if (mode !== 'landlord') {
+      <button
+        type="button"
+        (click)="toggleFavourite()"
+        [attr.aria-label]="isFavourite
+          ? 'Remove ' + property.title + ' from favourites'
+          : 'Add ' + property.title + ' to favourites'"
+        [attr.aria-pressed]="isFavourite"
+        class="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-black/75 text-2xl text-white backdrop-blur transition hover:bg-[#ff6b00]">
+        <span [class.text-[#ff6b00]]="isFavourite">
+          {{ isFavourite ? '♥' : '♡' }}
+        </span>
+      </button>
+    }
+
+    @if (property.vegetarianPreference && mode !== 'favourites') {
+      <span class="absolute bottom-4 left-4 rounded-full border border-green-500/30 bg-black/75 px-3 py-1.5 text-xs font-semibold text-green-300">
+        Vegetarian preference
+      </span>
+    }
+  </div>
+
+  <!-- Card body -->
+  <div class="flex flex-1 flex-col p-5">
+    <p class="text-sm text-neutral-400">
+      {{ property.location }}, {{ property.city }}
+    </p>
+
+    <h3 class="mt-2 line-clamp-1 text-lg font-bold text-white">
+      {{ property.title }}
+    </h3>
+
+    <p class="mt-2 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-neutral-400">
+      {{ property.description }}
+    </p>
+
+    <!-- Property features -->
+    <div class="mt-4 flex flex-wrap gap-3 text-xs text-neutral-400">
+      <span>{{ property.bedrooms }} Beds</span>
+      <span>{{ property.bathrooms }} Baths</span>
+      <span>{{ property.areaSqFt }} sq.ft.</span>
+      @if (mode !== 'landlord') {
+        <span>{{ property.furnished }}</span>
+      }
+    </div>
+
+    <!-- Rent -->
+    <div class="mt-5 flex items-end justify-between gap-3 border-t border-white/10 pt-4">
+      <div>
+        <p class="text-xl font-black text-[#ff8a38]">
+          {{ property.monthlyRent | currency:'INR':'symbol':'1.0-0' }}
+        </p>
+        <p class="mt-1 text-xs text-neutral-500">
+          {{ property.priceMode || 'Per Month' }}
+        </p>
+      </div>
+
+      @if (mode === 'landlord') {
+        <span class="rounded-lg border border-white/10 px-3 py-2 text-xs text-neutral-300">
+          {{ property.amenities.length }} amenities
+        </span>
+      } @else if (mode === 'featured') {
+        <span class="rounded-lg border border-white/10 px-3 py-2 text-xs text-neutral-300">
+          {{ property.furnished }}
+        </span>
+      }
+    </div>
+
+    @if (mode === 'browse') {
+      <p class="mt-4 text-xs text-neutral-500">
+        Listed by {{ property.landlordName }}
+      </p>
+    }
+
+    @if (mode === 'landlord') {
+      <p class="mt-4 text-xs text-neutral-500">
+        Listed {{ property.createdAt | date:'mediumDate' }}
+      </p>
+    }
+
+    <!-- Actions stay aligned at the bottom -->
+    <div class="mt-auto pt-5">
+      @if (mode === 'landlord') {
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            (click)="editProperty()"
+            [disabled]="isDeleting"
+            class="rounded-xl border border-[#ff6b00]/50 px-4 py-3 font-semibold text-[#ff8a38] transition hover:bg-[#ff6b00] hover:text-white disabled:cursor-not-allowed disabled:opacity-50">
+            Edit Property
+          </button>
+
+          <button
+            type="button"
+            (click)="deleteProperty()"
+            [disabled]="isDeleting"
+            class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 font-semibold text-red-400 transition hover:border-red-500 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50">
+            {{ isDeleting ? 'Deleting...' : 'Delete Property' }}
+          </button>
+        </div>
+      } @else {
+        <button
+          type="button"
+          (click)="viewDetails()"
+          class="w-full rounded-xl bg-[#ff6b00] px-4 py-3 text-sm font-bold text-white transition hover:bg-orange-500">
+          View Details
+        </button>
+      }
+    </div>
+  </div>
+</article>

@@ -1,0 +1,214 @@
+
+<main class="min-h-screen bg-[#0a0a0a] text-white">
+  <!-- Header -->
+  <header class="sticky top-0 z-20 border-b border-white/10 bg-[#0a0a0a]/95 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+      <!-- RentHub logo -->
+      <a
+        routerLink="/user-dashboard"
+        class="text-2xl font-black tracking-tight"
+      >
+        Rent<span class="text-[#ff6b00]">Hub</span>
+      </a>
+
+      <!-- Dashboard and logout buttons -->
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          (click)="goToDashboard()"
+          class="hidden rounded-xl border border-white/10 px-4 py-2 text-sm text-gray-300 transition hover:border-[#ff6b00] hover:text-white sm:block"
+        >
+          Dashboard
+        </button>
+
+        <button
+          type="button"
+          (click)="logout()"
+          class="rounded-xl border border-white/10 px-4 py-2 text-sm text-gray-300 transition hover:border-red-500 hover:text-red-400"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Page heading and add property button -->
+    <section class="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+      <div>
+        <p class="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-[#ff6b00]">
+          Landlord workspace
+        </p>
+
+        <h1 class="text-3xl font-black sm:text-4xl">
+          My Listings
+        </h1>
+
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-400 sm:text-base">
+          Manage your rental properties, update listing information, and keep your properties up to date.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        (click)="addProperty()"
+        class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#ff6b00] px-5 py-3 font-bold text-white transition hover:bg-orange-500"
+      >
+        <span class="text-xl">+</span>
+        Add Property
+      </button>
+    </section>
+
+    <!-- Display success or error feedback -->
+    @if (feedback) {
+      <div
+        role="status"
+        [class]="feedbackType === 'success'
+          ? 'mb-6 rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-300'
+          : 'mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300'"
+      >
+        {{ feedback }}
+      </div>
+    }
+
+    <!-- Summary cards -->
+    <section class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <!-- Total number of listings -->
+      <div class="rounded-2xl border border-white/10 bg-[#141414] p-5">
+        <p class="text-sm text-gray-400">Total listings</p>
+        <p class="mt-2 text-3xl font-black">
+          {{ totalListings }}
+        </p>
+      </div>
+
+      <!-- Average monthly rent -->
+      <div class="rounded-2xl border border-white/10 bg-[#141414] p-5">
+        <p class="text-sm text-gray-400">Average monthly rent</p>
+        <p class="mt-2 text-3xl font-black">
+          {{ averageRent | currency:'INR':'symbol':'1.0-0' }}
+        </p>
+      </div>
+
+      <!-- Number of distinct cities -->
+      <div class="rounded-2xl border border-white/10 bg-[#141414] p-5">
+        <p class="text-sm text-gray-400">Cities covered</p>
+        <p class="mt-2 text-3xl font-black">
+          {{ getCityCount() }}
+        </p>
+      </div>
+    </section>
+
+    <!-- Property listings -->
+    <section>
+      <div class="mb-5 flex items-center justify-between gap-4">
+        <h2 class="text-xl font-bold">Your properties</h2>
+
+        <span class="text-sm text-gray-500">
+          {{ properties.length }} listing(s)
+        </span>
+      </div>
+
+      @if (properties.length > 0) {
+        <!-- Display property cards for the current page -->
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          @for (property of paginatedProperties; track property.id) {
+            <app-property-card
+              [property]="property"
+              mode="landlord"
+              [isDeleting]="deletingPropertyId !== null"
+              (editRequested)="editProperty($event)"
+              (deleteRequested)="deleteProperty($event)"
+            />
+          }
+        </div>
+
+        <!-- Pagination controls -->
+        <div
+          class="mt-8 flex flex-col items-center justify-between gap-5 rounded-2xl border border-white/10 bg-[#141414] p-5 sm:flex-row"
+        >
+          <!-- Select the number of listings displayed per page -->
+          <div class="flex items-center gap-3">
+            <label for="pageSize" class="text-sm text-gray-400">
+              Listings per page
+            </label>
+
+            <select
+              id="pageSize"
+              [ngModel]="pageSize"
+              (ngModelChange)="changePageSize($event)"
+              class="rounded-xl border border-white/10 bg-[#0a0a0a] px-3 py-2 text-sm text-white outline-none transition focus:border-[#ff6b00]"
+            >
+              <option [ngValue]="3">3</option>
+              <option [ngValue]="6">6</option>
+              <option [ngValue]="9">9</option>
+            </select>
+          </div>
+
+          <!-- Page navigation -->
+          <div class="flex flex-wrap items-center justify-center gap-2">
+            <span class="mr-2 text-sm text-gray-400">
+              Page {{ currentPage }} of {{ totalPages }}
+            </span>
+
+            <!-- Navigate to the previous page -->
+            <button
+              type="button"
+              (click)="previousPage()"
+              [disabled]="currentPage === 1"
+              class="rounded-xl border border-white/10 px-3 py-2 text-sm font-medium text-gray-300 transition hover:border-[#ff6b00] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Previous
+            </button>
+
+            <!-- Display available page numbers -->
+            @for (page of pageNumbers; track page) {
+              <button
+                type="button"
+                (click)="goToPage(page)"
+                [attr.aria-current]="currentPage === page ? 'page' : null"
+                [class]="currentPage === page
+                  ? 'rounded-xl bg-[#ff6b00] px-4 py-2 text-sm font-bold text-white'
+                  : 'rounded-xl border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-[#ff6b00] hover:text-white'"
+              >
+                {{ page }}
+              </button>
+            }
+
+            <!-- Navigate to the next page -->
+            <button
+              type="button"
+              (click)="nextPage()"
+              [disabled]="currentPage === totalPages"
+              class="rounded-xl border border-white/10 px-3 py-2 text-sm font-medium text-gray-300 transition hover:border-[#ff6b00] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      } @else {
+        <!-- Show a message when no properties exist -->
+        <div class="rounded-3xl border border-dashed border-white/15 bg-[#141414] px-6 py-16 text-center">
+          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#ff6b00]/10 text-3xl">
+            🏠
+          </div>
+
+          <h3 class="mt-5 text-xl font-bold">
+            No listings yet
+          </h3>
+
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-400">
+            You haven't added any properties yet. Create your first listing to start showcasing your rental property.
+          </p>
+
+          <button
+            type="button"
+            (click)="addProperty()"
+            class="mt-6 rounded-xl bg-[#ff6b00] px-5 py-3 font-bold text-white transition hover:bg-orange-500"
+          >
+            Add Your First Property
+          </button>
+        </div>
+      }
+    </section>
+  </main>
+</main>
